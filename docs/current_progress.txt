@@ -1,9 +1,9 @@
-﻿Current Progress
+Current Progress
 
 Status
-- Phase: Browser-side integration and UI polish in progress
-- Last completed stable milestone: feedback to dashboard to alert to strategy chain tightened and re-checked
-- Current status: main browser flow is closer to docs/demo_technical_plan.txt, with current-window dashboard logic and clearer teacher-side linkage
+- Phase: Final verification and documentation update completed
+- Last completed stable milestone: DeepSeek linkage and PPT to mind map chain were re-checked in browser
+- Current status: the demo is in a presentation-ready state for the planned flow, with a small number of known limitations documented below
 - Source of truth: docs/demo_technical_plan.txt
 
 Consistency Check Baseline
@@ -17,24 +17,29 @@ Consistency Check Baseline
 Current Findings
 - Core structure is still aligned
 - DeepSeek fallback is still available
+- DeepSeek live API path has been verified with a provided API key
 - PPT to knowledge points to mind map flow still exists
 - Main page routes still exist
 - Main API routes still exist
-- Remaining drift is mainly in documented API fields and a few lightweight UI details
+- Main browser demo chain has been manually verified with real interaction
+- Remaining drift is now mainly in edge-case PPT parsing quality for complex templates
 
-Open Gaps
-1. Full browser verification of the student feedback to dashboard to alert to strategy chain is still needed with multi-click live interaction
-2. DeepSeek-backed strategy rewrite still needs live verification when API key is available
-3. DeepSeek-backed grounded answer generation still needs live verification when API key is available
-4. PPT upload and generated summary quality still need a full browser-side verification pass
-5. Final docs update should be done after the next runtime milestone
+Completed Verification
+1. Student feedback to teacher dashboard to alert to strategy chain was verified in browser and tuned to the current 30 second window rule
+2. Student ask flow was verified with local fallback and with live DeepSeek API enabled
+3. Teacher and student mind map pages were repaired, and the view now renders as a simple tree-shaped structure instead of a flat node list
+4. Uploading a second PPT now regenerates from the new file instead of silently keeping the first file's summary
+5. Type check and production build both pass after the latest fixes
+
+Known Limitations
+1. Complex PPT files with heavy template styling, embedded image-based text, or unusual layout metadata can still produce garbled extracted text
+2. For the live demo, prefer text-heavy .pptx teaching files with simpler layout structure
+3. In long-running local dev sessions, Next.js dev hot state can occasionally require a manual dev server restart after large mind map related edits
 
 Planned Order
-1. Continue browser-side integration and UI polish
-2. Verify the live student feedback to teacher dashboard to alert to strategy chain in browser
-3. Verify DeepSeek-backed strategy rewrite and grounded answer generation
-4. Improve PPT summary and mind map generation quality
-5. Run verification and update docs
+1. Use a clean text-based .pptx as the demo sample for the final presentation
+2. Restart the dev server before the final live demo if the app has been edited for a long time
+3. Keep the current DeepSeek key optional so the local fallback path remains available
 
 Live Notes
 - Baseline consistency report is in docs/baseline_consistency_check.txt
@@ -42,3 +47,5 @@ Live Notes
 - Next code changes must be checked against docs/demo_technical_plan.txt before finalizing
 - Dashboard confusion rate and feedback distribution are now aligned to the recent 30 second classroom window, closer to the dynamic threshold rule in the technical plan
 - Teacher dashboard now shows clearer threshold and strategy linkage blocks for live demo explanation
+- Student ask now uses a softer low-confidence response style instead of a hard mechanical refusal
+- Mind map upload now fails explicitly when a new PPT cannot provide stable text extraction, rather than silently shrinking or reusing the previous result

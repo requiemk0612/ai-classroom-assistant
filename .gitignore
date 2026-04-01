@@ -1,2 +1,29 @@
+# dependencies
 node_modules/
+
+# next.js build output
 .next/
+out/
+
+# local environment files
+.env
+.env.*
+!.env.example
+
+# logs and runtime state
+*.log
+*.pid
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# typescript cache
+*.tsbuildinfo
+
+# editor and os files
+.DS_Store
+Thumbs.db
+
+# local scratch and temporary files
+*.tmp
+*.temp

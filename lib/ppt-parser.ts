@@ -1,38 +1,25 @@
 import JSZip from "jszip";
-import { XMLParser } from "fast-xml-parser";
 
-function collectText(value: unknown, bucket: string[]): void {
-  if (!value) {
-    return;
-  }
+function decodeXmlText(text: string): string {
+  return text
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'");
+}
 
-  if (typeof value === "string") {
-    const text = value.trim();
-    if (text) {
-      bucket.push(text);
-    }
-    return;
-  }
+function extractSlideText(xmlText: string): string {
+  const matches = Array.from(xmlText.matchAll(/<a:t[^>]*>([\s\S]*?)<\/a:t>/g));
+  const texts = matches
+    .map((item) => decodeXmlText(item[1] ?? "").trim())
+    .filter(Boolean);
 
-  if (Array.isArray(value)) {
-    value.forEach((item) => collectText(item, bucket));
-    return;
-  }
-
-  if (typeof value === "object") {
-    Object.entries(value).forEach(([key, item]) => {
-      if (key === "#text") {
-        collectText(item, bucket);
-      } else {
-        collectText(item, bucket);
-      }
-    });
-  }
+  return Array.from(new Set(texts)).join(" ");
 }
 
 export async function parsePpt(buffer: ArrayBuffer): Promise<string[]> {
   const zip = await JSZip.loadAsync(buffer);
-  const parser = new XMLParser({ ignoreAttributes: false });
   const slides = Object.keys(zip.files)
     .filter((name) => name.startsWith("ppt/slides/slide") && name.endsWith(".xml"))
     .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
@@ -45,10 +32,10 @@ export async function parsePpt(buffer: ArrayBuffer): Promise<string[]> {
       continue;
     }
     const xmlText = await slideFile.async("text");
-    const xml = parser.parse(xmlText);
-    const texts: string[] = [];
-    collectText(xml, texts);
-    results.push(texts.join(" "));
+    const text = extractSlideText(xmlText);
+    if (text) {
+      results.push(text);
+    }
   }
 
   return results;

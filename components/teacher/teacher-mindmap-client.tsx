@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { PointSummary } from "@/components/shared/point-summary";
 import { MindMapView } from "@/components/shared/mindmap-view";
 import type { MindMapData } from "@/types/mindmap";
@@ -24,6 +24,7 @@ export function TeacherMindMapClient({ initialData }: { initialData: MindMapData
   const [pptFile, setPptFile] = useState<File | null>(null);
   const [statusText, setStatusText] = useState("\u53ef\u4ee5\u76f4\u63a5\u4e0a\u4f20 .pptx \u6587\u4ef6\uff0c\u6216\u4ec5\u66f4\u65b0\u8bfe\u7a0b\u540d\u79f0\u540e\u91cd\u65b0\u751f\u6210\u6458\u8981\u3002");
   const [submitting, setSubmitting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -74,14 +75,20 @@ export function TeacherMindMapClient({ initialData }: { initialData: MindMapData
         body: formData
       });
       if (!response.ok) {
-        throw new Error("Request failed");
+        const payload = (await response.json().catch(() => null)) as { message?: string } | null;
+        throw new Error(payload?.message || "Request failed");
       }
       const nextData = (await response.json()) as MindMapData;
       setData(nextData);
       setCourseName(nextData.courseName);
+      setPptFile(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
       setStatusText("\u5df2\u751f\u6210\u65b0\u7684\u8bfe\u7a0b\u6458\u8981\u4e0e\u5bfc\u56fe\uff0c\u5b66\u751f\u7aef\u4e5f\u53ef\u4ee5\u540c\u6b65\u67e5\u770b\u3002");
-    } catch {
-      setStatusText("\u672c\u6b21\u751f\u6210\u5931\u8d25\uff0c\u5f53\u524d\u7ee7\u7eed\u4fdd\u7559\u4e0a\u4e00\u7248\u5bfc\u56fe\u6570\u636e\u3002");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "\u672c\u6b21\u751f\u6210\u5931\u8d25\uff0c\u5f53\u524d\u7ee7\u7eed\u4fdd\u7559\u4e0a\u4e00\u7248\u5bfc\u56fe\u6570\u636e\u3002";
+      setStatusText(message);
     } finally {
       setSubmitting(false);
     }
@@ -100,6 +107,7 @@ export function TeacherMindMapClient({ initialData }: { initialData: MindMapData
 
           <label className="mt-4 block text-sm font-medium text-slate-700">{"PPT \u6587\u4ef6"}</label>
           <input
+            ref={fileInputRef}
             type="file"
             accept=".pptx"
             onChange={(event) => setPptFile(event.target.files?.[0] ?? null)}

@@ -1,37 +1,40 @@
 {
   "topicId": "gradient",
-  "courseName": "\u9ad8\u7b49\u6570\u5b66\uff1a\u5168\u5fae\u5206\u3001\u65b9\u5411\u5bfc\u6570\u4e0e\u68af\u5ea6",
+  "courseName": "高等数学：全微分、方向导数与梯度",
   "summaryPoints": [
-    "\u5168\u5fae\u5206\u7528\u4e8e\u63cf\u8ff0\u591a\u5143\u51fd\u6570\u5728\u5c40\u90e8\u7684\u4e3b\u8981\u53d8\u5316\u90e8\u5206\u3002",
-    "\u65b9\u5411\u5bfc\u6570\u8868\u793a\u51fd\u6570\u6cbf\u6307\u5b9a\u65b9\u5411\u7684\u53d8\u5316\u7387\u3002",
-    "\u8ba1\u7b97\u65b9\u5411\u5bfc\u6570\u65f6\u8981\u5148\u786e\u5b9a\u5355\u4f4d\u5411\u91cf\u3002",
-    "\u68af\u5ea6\u7531\u5404\u4e2a\u504f\u5bfc\u6570\u6784\u6210\uff0c\u6307\u5411\u503c\u589e\u957f\u6700\u5feb\u7684\u65b9\u5411\u3002",
-    "\u68af\u5ea6\u7684\u6a21\u7b49\u4e8e\u6700\u5927\u65b9\u5411\u5bfc\u6570\u3002",
-    "\u68af\u5ea6\u4e0e\u7b49\u9ad8\u7ebf\u5782\u76f4\uff0c\u6709\u52a9\u4e8e\u7406\u89e3\u51e0\u4f55\u610f\u4e49\u3002"
+    "商科大 杂烩？ 万金油 ？ 多而不 精？ 啥都 不会？ 毕业即 失业？"
   ],
   "nodes": [
-    { "id": "root", "data": { "label": "\u591a\u5143\u51fd\u6570\u5fae\u5206" }, "position": { "x": 420, "y": 40 } },
-    { "id": "node_1", "data": { "label": "\u5168\u5fae\u5206" }, "position": { "x": 120, "y": 200 } },
-    { "id": "node_2", "data": { "label": "\u65b9\u5411\u5bfc\u6570" }, "position": { "x": 300, "y": 200 } },
-    { "id": "node_3", "data": { "label": "\u5355\u4f4d\u5411\u91cf" }, "position": { "x": 480, "y": 200 } },
-    { "id": "node_4", "data": { "label": "\u68af\u5ea6" }, "position": { "x": 660, "y": 200 } },
-    { "id": "node_5", "data": { "label": "\u6700\u5927\u53d8\u5316\u7387" }, "position": { "x": 840, "y": 200 } },
-    { "id": "node_6", "data": { "label": "\u7b49\u9ad8\u7ebf\u5782\u76f4" }, "position": { "x": 1020, "y": 200 } }
+    {
+      "id": "root",
+      "data": {
+        "label": "高等数学：全微分、方向导数与梯度"
+      },
+      "position": {
+        "x": 400,
+        "y": 40
+      }
+    },
+    {
+      "id": "node_1",
+      "data": {
+        "label": "商科大 杂烩？ 万金油 ？ 多而不 "
+      },
+      "position": {
+        "x": 120,
+        "y": 200
+      }
+    }
   ],
   "edges": [
-    { "id": "edge_1", "source": "root", "target": "node_1" },
-    { "id": "edge_2", "source": "root", "target": "node_2" },
-    { "id": "edge_3", "source": "root", "target": "node_3" },
-    { "id": "edge_4", "source": "root", "target": "node_4" },
-    { "id": "edge_5", "source": "root", "target": "node_5" },
-    { "id": "edge_6", "source": "root", "target": "node_6" }
+    {
+      "id": "edge_1",
+      "source": "root",
+      "target": "node_1"
+    }
   ],
   "sourceSlides": [
-    "\u7b2c1\u9875\uff1a\u591a\u5143\u51fd\u6570\u5fae\u5206\u4e0e\u51e0\u4f55\u76f4\u89c2",
-    "\u7b2c2\u9875\uff1a\u5168\u5fae\u5206\u7684\u5b9a\u4e49\u4e0e\u610f\u4e49",
-    "\u7b2c3\u9875\uff1a\u65b9\u5411\u5bfc\u6570\u7684\u516c\u5f0f\u4e0e\u56fe\u50cf",
-    "\u7b2c4\u9875\uff1a\u68af\u5ea6\u7684\u5b9a\u4e49\u4e0e\u51e0\u4f55\u89e3\u91ca",
-    "\u7b2c5\u9875\uff1a\u68af\u5ea6\u4e0e\u6700\u5927\u53d8\u5316\u7387"
+    "第1页：商科大 杂烩？ 万金油 ？ 多而不 精？ 啥都 不会？ 毕业即 失业？"
   ],
-  "updatedAt": "2026-04-01T03:55:55.690Z"
+  "updatedAt": "2026-04-01T12:12:43.439Z"
 }

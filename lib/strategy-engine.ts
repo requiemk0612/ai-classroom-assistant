@@ -69,7 +69,7 @@ export async function buildStrategyResponse(
         })
       }
     ],
-    { jsonMode: true, maxTokens: 500 }
+    { jsonMode: true, maxTokens: 260 }
   );
 
   if (!aiText) {

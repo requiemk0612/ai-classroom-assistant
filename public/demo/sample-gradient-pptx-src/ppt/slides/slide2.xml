@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<p:sld xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main">
+  <p:cSld>
+    <p:spTree>
+      <p:sp><p:txBody><a:p><a:r><a:t>姊害鐨勬牳蹇冪粨璁?/a:t></a:r></a:p></p:txBody></p:sp>
+      <p:sp><p:txBody><a:p><a:r><a:t>姊害鐢卞悇涓亸瀵兼暟缁勬垚銆?/a:t></a:r></a:p><a:p><a:r><a:t>姊害鏂瑰悜瀵瑰簲鍑芥暟鍊煎闀挎渶蹇殑鏂瑰悜銆?/a:t></a:r></a:p></p:txBody></p:sp>
+    </p:spTree>
+  </p:cSld>
+</p:sld>

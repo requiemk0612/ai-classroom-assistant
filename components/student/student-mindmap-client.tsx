@@ -40,9 +40,13 @@ export function StudentMindMapClient({ initialData }: { initialData: MindMapData
     }
 
     void loadLatest();
+    const timer = window.setInterval(() => {
+      void loadLatest();
+    }, 5000);
 
     return () => {
       active = false;
+      window.clearInterval(timer);
     };
   }, [initialData.topicId]);
 

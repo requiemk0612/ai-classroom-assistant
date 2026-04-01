@@ -1,10 +1,9 @@
-﻿Runtime Verification Report
+Runtime Verification Report
 
 1. Scope
 
-This document records the runtime-level verification completed after dependency installation.
-The verification was checked against docs/demo_technical_plan.txt.
-The focus was the main demo routes, API routes, build status, and key presentation flows.
+This document records the latest runtime-level verification completed against docs/demo_technical_plan.txt.
+The focus was the main demo routes, core APIs, build status, live browser interaction, and known runtime limitations for the final presentation.
 
 
 2. Environment Status
@@ -13,70 +12,64 @@ The focus was the main demo routes, API routes, build status, and key presentati
 - npm: 11.11.0
 - Dependency install: completed successfully in the project working directory
 - Type check: passed
-- Production build: passed
+- Production build: passed on 2026-04-01 after the latest mind map fixes
 
 
-3. Fixes Made During Verification
+3. Verification Summary
 
-- Updated Next.js version in package.json to a React 19 compatible 15.x release
-- Updated next.config.mjs to use the current typedRoutes field location
-- Rewrote project text/code files to UTF-8 without BOM so Next.js could read package.json correctly
+Verified through browser interaction and local runtime checks:
 
+- / => opens normally
+- /student/feedback => student feedback interaction works
+- /student/ask => relevant questions can be answered, low-confidence questions now use softer classroom-scoped guidance
+- /student/mindmap => page repaired and can render the latest saved mind map data
+- /teacher/dashboard => metrics, chart blocks, alert, and strategy linkage work together
+- /teacher/pressure => page opens normally
+- /teacher/mindmap => upload flow repaired and can regenerate a new tree-shaped mind map from a new PPT
 
-4. Route Verification
+Verified through commands:
 
-Verified with local dev server:
-
-- / => 200
-- /student/feedback => 200
-- /student/ask => 200
-- /student/mindmap => 200
-- /teacher/dashboard => 200
-- /teacher/pressure => 200
-- /teacher/mindmap => 200
-
-Verified key Chinese page text:
-
-- /student/feedback contains 课堂实时反馈
-- /student/ask contains 学生问答
-- /teacher/dashboard contains 教师仪表盘
-- /teacher/pressure contains 压力感知
-- /teacher/mindmap contains PPT 知识导图
+- npm run typecheck => passed
+- npm run build => passed
 
 
-5. API Verification
+4. Core Flow Verification
 
-Verified successfully:
+Student feedback to teacher dashboard chain:
 
-- /api/metrics
-- /api/feedback
-- /api/ask
-- /api/strategy
-- /api/pressure
-- /api/mindmap
+- Student feedback can update the teacher dashboard
+- Confusion rate, recent 30 second feedback count, and related threshold blocks are now aligned to the same recent window rule
+- Alert and strategy areas were re-checked after the threshold logic adjustment
 
-Observed results:
+Student ask flow:
 
-- Feedback submission updated feedbackCount and confusionRate
-- Ask API returned high confidence with source notes
-- Strategy API returned 3 strategy items
-- Pressure API returned weather level and 3 micro strategy items
-- Mind map API returned courseName, summaryPoints, nodes, edges, and sourceSlides
+- Local fallback remains available
+- Live DeepSeek-backed answer generation was verified with a provided API key
+- Source note behavior remains in scope
+
+PPT to mind map flow:
+
+- Teacher and student mind map pages were repaired after JSON read issues and mind map rendering issues
+- Uploading a second PPT now regenerates from the new file rather than silently retaining the old summary
+- Mind map view was upgraded from a flat node list to a simple structured tree layout
+- When a new PPT cannot provide stable extracted text, the teacher page now shows an explicit failure message instead of silently degrading the previous result
 
 
-6. Live Flow Verification
+5. Known Limitations
 
-Verified:
+- Complex PPT files with heavy template styling, image-based text, or unusual layout metadata can still produce garbled extracted text
+- For the final presentation, a text-heavy .pptx with simpler structure is recommended
+- During long-running dev sessions, Next.js dev hot state can occasionally become stale and require a manual dev server restart
 
-- Student feedback can update metrics through runtime requests
-- Alert logic can be triggered after enough recent confused feedback is submitted
-- Mind map POST flow works without breaking the page data structure
-- Teacher/student pages can load the latest local JSON backed data through API routes
 
-Partially verified:
+6. Additional Runtime Note
 
-- Socket.IO connection path works for basic metrics update
-- Full browser-side visual interaction was not executed through a real browser automation tool in this pass
+During a localhost probe after the latest build, the running dev server returned a temporary development-only module loading error for mind map pages:
+
+- Cannot find module './331.js'
+
+This appears consistent with stale Next.js dev hot state rather than a production build failure, because the latest type check and production build both passed, and the same browser flow had already been verified manually before this probe.
+If this reappears locally, restart the dev server before continuing the demo.
 
 
 7. Consistency Check With Technical Plan
@@ -87,22 +80,19 @@ Aligned with docs/demo_technical_plan.txt:
 - User-facing text is Chinese
 - PPT to knowledge points to mind map flow exists in the demo
 - Student ask with source note exists
-- Teacher dashboard with heatmap/trend/alert/strategy exists
+- Teacher dashboard with feedback awareness, trend context, alert, and strategy exists
 - Teacher pressure page with simplification pack exists
-- Local JSON remains the default data source
+- Local fallback remains available when AI is unavailable
 
 
 8. Current Status
 
-The project is now in a healthy state for the next development stage.
-The app can install, type-check, build, start, and respond on the main routes and APIs.
+The project is in a demo-ready state for the planned presentation path.
+The main remaining risk is not the core teaching flow, but PPT parsing quality for structurally complex slide decks.
 
 
-9. Recommended Next Step
+9. Recommended Final Demo Practice
 
-Follow the original route already planned earlier:
-
-1. continue browser-side runtime debugging and UI polish
-2. strengthen the real-time feedback to dashboard presentation flow
-3. connect DeepSeek for strategy rewrite and grounded answer generation
-4. improve PPT summary quality for the final demo presentation
+1. Restart the dev server shortly before the final presentation
+2. Use a clean, text-heavy .pptx sample for the mind map segment
+3. Keep the local fallback path available even if DeepSeek is enabled

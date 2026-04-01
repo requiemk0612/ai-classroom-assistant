@@ -23,7 +23,8 @@ const dataDir = path.join(process.cwd(), "data");
 async function readJsonFile<T>(fileName: string): Promise<T> {
   const filePath = path.join(dataDir, fileName);
   const content = await fs.readFile(filePath, "utf-8");
-  return JSON.parse(content) as T;
+  const normalized = content.replace(/^\uFEFF/, "").replace(/\u0000/g, "");
+  return JSON.parse(normalized) as T;
 }
 
 async function writeJsonFile<T>(fileName: string, data: T): Promise<void> {
