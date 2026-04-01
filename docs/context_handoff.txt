@@ -1,0 +1,117 @@
+﻿Context Handoff
+
+1. Current Progress
+
+Completed:
+- Project directory structure has been created.
+- Technical plan document is in docs/demo_technical_plan.txt.
+- Build prompts document is in docs/codex_build_prompts.txt.
+- Sample JSON data files are prepared in the data directory.
+- First runnable project skeleton has been created.
+- Main routes for student and teacher web pages exist.
+- Main API routes exist.
+- Dependency installation has been completed in D:\Projects\ai-classroom-assistant.
+- Type check passed.
+- Production build passed at least once after dependency installation and config fixes.
+- Runtime verification passed for the main routes and core APIs.
+- Runtime verification report is in docs/runtime_verification_report.txt.
+- Browser-side polish and flow strengthening have started.
+- DeepSeek integration helper has been added in lib/deepseek.ts.
+- Strategy rewrite, grounded answer generation, and better PPT summary logic have started.
+
+Main existing routes:
+- /
+- /student/feedback
+- /student/ask
+- /student/mindmap
+- /teacher/dashboard
+- /teacher/pressure
+- /teacher/mindmap
+
+Main existing APIs:
+- /api/feedback
+- /api/metrics
+- /api/strategy
+- /api/ask
+- /api/pressure
+- /api/mindmap
+
+
+2. Consistency Status
+
+Checked against docs/demo_technical_plan.txt:
+- Teacher side and student side are web pages.
+- User-facing content is Chinese.
+- Comments and variable names are kept in simple English.
+- PPT to knowledge points to mind map flow remains in scope.
+- Student ask with source note remains in scope.
+- Teacher dashboard with confusion rate, charts, alert, and strategy remains in scope.
+- Teacher pressure page with simplification pack remains in scope.
+- Local fallback remains available when AI service is unavailable.
+
+
+3. Work In Progress
+
+Started but not fully verified yet:
+- DeepSeek-backed strategy rewrite in lib/strategy-engine.ts
+- DeepSeek-backed grounded answer generation in lib/retrieval.ts
+- Better grouped mind map generation in app/api/mindmap/route.ts and lib/mindmap-layout.ts
+- Improved PPT text extraction in lib/ppt-parser.ts
+- UI polish for student ask, student feedback, alert card, and strategy list
+
+Current related files:
+- lib/deepseek.ts
+- lib/strategy-engine.ts
+- lib/retrieval.ts
+- lib/mindmap-layout.ts
+- lib/ppt-parser.ts
+- app/api/mindmap/route.ts
+- components/student/student-ask-client.tsx
+- components/student/student-feedback-client.tsx
+- components/teacher/alert-card.tsx
+- components/teacher/strategy-list.tsx
+
+
+4. Exceptions And Abnormal Cases
+
+Observed abnormal cases:
+- Earlier, Node.js was installed but not available in PATH. This was repaired during the environment work.
+- npm install initially failed because Next.js 15.0.0 did not accept stable React 19. The package was updated to a compatible Next.js 15.5.14 release.
+- next build initially failed because some project files had UTF-8 BOM. Files were rewritten without BOM.
+- A later npm run build command hung abnormally for a very long time. This is not normal for this project.
+- The likely cause of the long hang is a stuck Node/Next child process, file locking, or Windows process issues rather than normal build time.
+- Some commands were interrupted by the user during runtime verification, so there may have been temporary background processes at different moments.
+- During one runtime test, API output viewed in PowerShell showed garbled Chinese text, but this was a terminal encoding display issue, not necessarily an app-side data corruption issue.
+- Socket.IO basic metrics update was verified, but full browser-side visual interaction was not fully completed with real browser automation.
+
+Important note about the long build hang:
+- The project had already built successfully before.
+- Therefore the later 30 minute build behavior should be treated as an abnormal stuck process, not expected build duration.
+
+
+5. Recommended Next Steps
+
+Follow this order:
+1. Clean up any leftover Node/Next build or dev processes before continuing.
+2. Re-run a controlled build verification with short monitoring.
+3. Start the dev server again and verify the main pages manually in browser.
+4. Verify the full student feedback -> teacher dashboard -> alert -> strategy chain in browser.
+5. Verify the DeepSeek fallback behavior when no API key is present.
+6. If a DeepSeek key is available, verify strategy rewrite and ask generation with live API.
+7. Verify PPT upload and improved mind map summary quality.
+8. Update docs/current_progress.txt after each milestone.
+
+
+6. Files To Read First In The Next Context
+
+Read these first:
+- docs/demo_technical_plan.txt
+- docs/current_progress.txt
+- docs/runtime_verification_report.txt
+- docs/runtime_integration_update.txt
+- docs/context_handoff.txt
+- package.json
+- app/api/mindmap/route.ts
+- lib/deepseek.ts
+- lib/strategy-engine.ts
+- lib/retrieval.ts

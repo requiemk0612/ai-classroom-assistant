@@ -1,0 +1,874 @@
+AI Classroom Assistant Demo Technical Plan
+
+1. Project Goal
+
+Build a lightweight classroom AI assistant demo for software competition presentation. The product is a web-based teacher and student system. Both the teacher side and the student side must be delivered as web pages.
+
+The demo must keep the original project idea clear:
+
+- It is an AI classroom interaction assistant for offline teaching
+- It is similar in spirit to an AI version of classroom interaction tools, but the focus is not PPT control or random roll call
+- Its core value is real-time classroom sensing, teaching strategy support, safe student Q and A, pressure sensing, and PPT-based mind map generation
+
+The demo must be stable enough to build in about three days with Codex. It is a presentation-first demo, not a production system.
+
+
+2. Original Project Idea Mapping
+
+This demo must carefully reflect the creative ideas from the project draft.
+
+2.1 Real-time classroom resonance heatmap
+- Students send anonymous feedback in class
+- Feedback is not shown as public bullet chat
+- The system uses WebSocket real-time updates
+- The teacher sees a heatmap, confusion rate, and trend view
+- A dynamic threshold is used to judge understanding deficit
+- When confusion rises, the teacher gets direct AI teaching suggestions instead of only raw numbers
+
+2.2 AI answer verification with source note
+- Student questions should not receive free and unsafe model output
+- The answer must be grounded in local course material
+- The answer area must show source notes under the answer
+- If confidence is low, the answer style must become careful and conservative
+- This is the demo version of the project idea about reducing model hallucination in teaching
+
+2.3 Dynamic course pressure sensing
+- The teacher can view pressure score, homework speed, accuracy, and mood words
+- The UI should use weather style display such as sunny, cloudy, storm
+- The system should show simple micro strategy suggestions for the next class
+- A lightweight "knowledge simplification pack" idea should appear as a generated suggestion card in the pressure page
+
+2.4 PPT to knowledge points and mind map
+- The demo must include a feature that reads teaching PPT content
+- The system summarizes key knowledge points from the PPT
+- The system automatically generates a mind map
+- The mind map must be visible on both the teacher side and the student side
+- This feature is part of the demo scope and must not be removed
+
+2.5 Classroom realism
+- Student feedback should be anonymous
+- A lightweight anti-fake rule should exist in the demo, such as cooldown time, duplicate limit, and simple session filtering
+- The teacher should feel that AI is acting like a live teaching assistant
+
+
+3. Fixed Technical Stack
+
+Use one fixed stack only. Do not offer multiple stack options.
+
+Frontend
+- Next.js 15
+- React 19
+- TypeScript
+- Tailwind CSS
+- ECharts with echarts-for-react
+- React Flow for mind map display
+
+Backend
+- Next.js route handlers for HTTP API
+- Node.js custom server for Socket.IO real-time events
+- TypeScript for server code
+
+Data
+- Local JSON files only
+- No database in demo stage
+
+AI
+- DeepSeek chat API for text generation and structured summary generation
+- Local retrieval from JSON course material
+- No vector database
+- No embedding service
+
+PPT parsing
+- JSZip for reading .pptx package files
+- fast-xml-parser for extracting slide text
+
+Validation and safety
+- Zod for request validation
+- Rule-based confidence check before answer output
+- Rule-based anti-fake feedback check
+
+Utility
+- uuid for anonymous ids
+- dayjs for time formatting
+
+
+4. Global Rules For Codex
+
+These rules are mandatory for all generated code and documents.
+
+- All documents must use .txt files
+- Do not create .md files
+- Use simple English comments only
+- Use simple English variable names only
+- All user-facing content must be Chinese
+- All front-end labels, button text, chart titles, strategy text, source notes, course material text, and mind map labels must be Chinese
+- Keep the code lightweight and easy to edit
+- Prefer local JSON and simple rules over heavy infrastructure
+- Build for demo stability first, not scale
+- UI should look clean and modern, but the implementation should stay simple
+- Teacher side and student side are both web pages
+
+
+5. Demo Scope
+
+Must build:
+- Student feedback web page
+- Student ask web page
+- Student mind map web page
+- Teacher dashboard web page
+- Teacher pressure web page
+- Teacher mind map web page
+- Real-time feedback flow over Socket.IO
+- Dynamic threshold alert logic
+- Strategy suggestion based on local strategy library
+- AI answer with source note from local course material
+- Safe fallback wording when confidence is low
+- PPT upload and PPT text extraction for mind map generation
+- Knowledge point summary from PPT
+- Mind map generation for both teacher and student sides
+- Lightweight anti-fake feedback rule
+
+Must not build:
+- Full login system
+- Full database
+- OCR for scanned image PPT
+- Real anti-cheat system with identity verification
+- Model fine-tuning
+- Full homework management system
+- Complex vector retrieval platform
+
+
+6. Product Flow
+
+Flow A: Classroom feedback
+1. Student opens the web feedback page
+2. Student clicks one of four feedback buttons
+3. Client sends feedback event through Socket.IO
+4. Server updates in-memory session stats
+5. Teacher dashboard web page updates charts and confusion rate in real time
+6. If threshold is reached, teacher sees an alert and strategy cards
+
+Flow B: Student ask with source note
+1. Student opens the web ask page
+2. Student enters a question in Chinese
+3. API loads local course chunks from JSON
+4. Retrieval picks the top matching chunks
+5. API sends question and chunks to DeepSeek
+6. API returns answer, source notes, and confidence level
+7. UI shows answer plus source note card in Chinese
+8. If confidence is low, UI shows safe fallback text in Chinese
+
+Flow C: Pressure display
+1. Teacher opens the web pressure page
+2. Page loads mocked class data from JSON
+3. System computes a simple pressure score
+4. UI shows weather-style status and micro strategy tips in Chinese
+5. UI shows one lightweight knowledge simplification pack card in Chinese
+
+Flow D: PPT to mind map
+1. Teacher opens the web mind map page
+2. Teacher uploads a .pptx teaching file
+3. API extracts slide text from the PPT
+4. API summarizes key knowledge points
+5. API generates mind map nodes and edges
+6. Teacher side shows the generated mind map
+7. Student side reads the latest generated mind map and shows the same learning structure
+
+
+7. Page List
+
+7.1 Student Feedback Page
+Route
+- /student/feedback
+
+Main purpose
+- Let students send simple anonymous classroom feedback in real time
+
+Main UI blocks
+- Chinese page title
+- Four Chinese feedback buttons
+- Current topic label in Chinese
+- Small submit status text in Chinese
+- Recent class mood bar in Chinese
+
+Buttons in Chinese
+- 听懂了
+- 有点快
+- 没听懂
+- 这个例子很清楚
+
+Main components
+- StudentHeader
+- FeedbackButtons
+- FeedbackStatus
+- MoodBar
+
+
+7.2 Student Ask Page
+Route
+- /student/ask
+
+Main purpose
+- Let students ask a course question and receive an AI answer with source note
+
+Main UI blocks
+- Chinese question input box
+- Chinese submit button
+- Answer card in Chinese
+- Source note card in Chinese
+- Confidence tag in Chinese
+- Safe note text in Chinese when confidence is low
+
+Main components
+- AskForm
+- AnswerCard
+- SourceCard
+- ConfidenceBadge
+
+
+7.3 Student Mind Map Page
+Route
+- /student/mindmap
+
+Main purpose
+- Show the latest generated course mind map to students
+
+Main UI blocks
+- Chinese page title
+- Current lesson name in Chinese
+- Knowledge point summary list in Chinese
+- Mind map canvas
+- Last update time in Chinese
+
+Main components
+- MindMapHeader
+- PointSummary
+- MindMapView
+
+
+7.4 Teacher Dashboard Page
+Route
+- /teacher/dashboard
+
+Main purpose
+- Show real-time classroom state and AI strategy suggestions
+
+Main UI blocks
+- Current topic selector with Chinese labels
+- Online student count
+- Confusion rate big number
+- Feedback heatmap or stacked chart
+- Recent trend line
+- Alert card in Chinese
+- Strategy card list in Chinese
+
+Main components
+- TopicSelect
+- BigRateCard
+- HeatmapChart
+- TrendChart
+- AlertCard
+- StrategyList
+
+
+7.5 Teacher Pressure Page
+Route
+- /teacher/pressure
+
+Main purpose
+- Show a simple class pressure view with weather style design
+
+Main UI blocks
+- Pressure score
+- Weather status card in Chinese
+- Homework speed block
+- Accuracy block
+- Mood words block
+- Micro strategy suggestion list in Chinese
+- Knowledge simplification pack card in Chinese
+
+Main components
+- PressureCard
+- WeatherCard
+- StatCard
+- MoodWordList
+- MicroStrategyList
+- SimplificationPackCard
+
+
+7.6 Teacher Mind Map Page
+Route
+- /teacher/mindmap
+
+Main purpose
+- Let the teacher upload PPT, summarize knowledge points, and view the generated mind map
+
+Main UI blocks
+- Chinese page title
+- PPT upload area
+- Course name input in Chinese
+- Generate button in Chinese
+- Extracted slide text preview in Chinese
+- Knowledge point summary list in Chinese
+- Mind map canvas
+
+Main components
+- PptUploadBox
+- SlidePreview
+- PointSummary
+- MindMapView
+
+
+8. HTTP API List
+
+8.1 POST /api/feedback
+Purpose
+- Save one student feedback action for backup and page refresh recovery
+
+Request body
+- sessionId: string
+- studentId: string
+- topicId: string
+- feedbackType: string
+- time: string
+
+Response
+- ok: boolean
+- message: string
+
+Notes
+- Socket.IO is the main real-time path
+- This API is also used for local log backup
+
+
+8.2 GET /api/metrics
+Purpose
+- Return current teacher dashboard metrics
+
+Query
+- sessionId: string
+
+Response
+- onlineCount: number
+- feedbackCount: number
+- confusionRate: number
+- feedbackSummary: object
+- trendPoints: array
+- alert: object or null
+
+
+8.3 POST /api/strategy
+Purpose
+- Return strategy suggestions for current topic and current classroom state
+
+Request body
+- topicId: string
+- confusionRate: number
+- trendUp: boolean
+- feedbackSummary: object
+
+Response
+- alertLevel: string
+- alertMessage: string
+- strategies: array
+
+
+8.4 POST /api/ask
+Purpose
+- Return AI answer with source note and confidence result
+
+Request body
+- topicId: string
+- question: string
+- studentId: string
+
+Response
+- answer: string
+- confidence: string
+- sourceNotes: array
+- safeNote: string
+
+
+8.5 GET /api/pressure
+Purpose
+- Return pressure page data from local mocked files
+
+Query
+- sessionId: string
+
+Response
+- pressureScore: number
+- weatherLevel: string
+- homeworkSpeed: number
+- accuracyRate: number
+- moodWords: array
+- microStrategies: array
+- simplificationPack: object
+
+
+8.6 POST /api/mindmap
+Purpose
+- Extract PPT text, summarize key knowledge points, and generate mind map data
+
+Request body
+- courseName: string
+- topicId: string
+- pptFile: file
+
+Response
+- courseName: string
+- summaryPoints: array
+- nodes: array
+- edges: array
+- sourceSlides: array
+- updatedAt: string
+
+
+8.7 GET /api/mindmap
+Purpose
+- Return the latest generated mind map for teacher or student display
+
+Query
+- topicId: string
+
+Response
+- courseName: string
+- summaryPoints: array
+- nodes: array
+- edges: array
+- updatedAt: string
+
+
+9. Real-Time Event List
+
+9.1 Client to server
+Event name
+- feedback:send
+
+Payload
+- sessionId: string
+- studentId: string
+- topicId: string
+- feedbackType: "understand" | "too_fast" | "confused" | "clear_example"
+- time: string
+
+
+9.2 Server to teacher
+Event name
+- metrics:update
+
+Payload
+- onlineCount: number
+- confusionRate: number
+- feedbackSummary: object
+- trendPoints: array
+- alert: object or null
+
+
+9.3 Server to teacher
+Event name
+- strategy:update
+
+Payload
+- topicId: string
+- alertLevel: string
+- alertMessage: string
+- strategies: array
+
+
+10. Core Logic Rules
+
+10.1 Confusion rate
+Use this simple formula:
+
+confusionRate =
+(too_fast_count + confused_count) / all_feedback_count
+
+10.2 Threshold alert
+Trigger alert when all conditions are true:
+- total feedback in current window >= 8
+- confusionRate >= 0.30
+- confusionRate - lastWindowRate >= 0.10
+
+Window rule
+- current window: last 30 seconds
+- last window: previous 30 seconds
+
+10.3 Strategy generation
+Use local strategy-library.json first.
+Select current topic.
+Pick three strategy items by type:
+- analogy
+- visual
+- quick_check
+
+Then call DeepSeek only to rewrite them into natural teacher-facing Chinese text.
+Do not let the model invent new teaching facts without library support.
+
+The strategy card style should clearly reflect the original project idea:
+- one visual suggestion
+- one classic analogy suggestion
+- one fast anonymous check suggestion
+
+10.4 Ask answer confidence
+Use a simple three-level confidence result.
+
+High
+- at least 2 matched chunks
+- top score is strong
+
+Medium
+- 1 matched chunk with acceptable score
+
+Low
+- no clear chunk match
+
+Low confidence output rule
+- answer must use careful wording in Chinese
+- add safe note in Chinese
+- example safe note: "根据当前课程资料，这一部分可能还需要结合老师课堂讲解进一步确认。"
+
+10.5 Anti-fake feedback rule
+This is a lightweight demo rule only.
+
+Rules
+- same student can send only one feedback in 3 seconds
+- if the same feedback type repeats too many times in a short window, keep only the latest one
+- sessionId and studentId must exist
+
+10.6 PPT to mind map rule
+- Support only .pptx upload in the demo
+- Extract text from slide title and body text
+- Ignore images, animation, and complex layout
+- Build knowledge points from extracted slide text
+- Use DeepSeek to rewrite summary points into clean Chinese phrases
+- Generate a simple tree-style mind map
+- Save the latest result to local JSON for student and teacher pages
+
+
+11. Data Structure Plan
+
+11.1 strategy-library.json
+Purpose
+- Local teaching strategy source
+
+Structure
+- topics: array of topic objects
+
+Topic object
+- topicId: string
+- topicName: string
+- analogy: array of Chinese strings
+- visual: array of Chinese strings
+- quickCheck: array of Chinese strings
+- keyPoints: array of Chinese strings
+
+
+11.2 course-materials.json
+Purpose
+- Local source for answer grounding
+
+Structure
+- chunks: array of material chunk objects
+
+Material chunk object
+- chunkId: string
+- topicId: string
+- title: string
+- content: string
+- sourceName: string
+- page: string
+- keywords: array of Chinese strings
+
+
+11.3 pressure-data.json
+Purpose
+- Mock data source for pressure page
+
+Structure
+- sessionId: string
+- homeworkSpeed: number
+- accuracyRate: number
+- moodWords: array of Chinese strings
+- weeklyTrend: array of numbers
+- simplificationPack: object
+
+Simplification pack object
+- title: string
+- summary: string
+- actions: array of Chinese strings
+
+
+11.4 session-state.json
+Purpose
+- Optional local backup of runtime stats
+
+Structure
+- sessionId: string
+- topicId: string
+- onlineStudents: array of strings
+- feedbackLog: array of feedback items
+
+Feedback item
+- studentId: string
+- feedbackType: string
+- time: string
+
+
+11.5 mindmap-data.json
+Purpose
+- Save the latest generated PPT summary and mind map
+
+Structure
+- topicId: string
+- courseName: string
+- summaryPoints: array of Chinese strings
+- nodes: array
+- edges: array
+- sourceSlides: array of strings
+- updatedAt: string
+
+
+12. Type Definition Plan
+
+Create simple shared types in TypeScript.
+
+FeedbackType
+- "understand"
+- "too_fast"
+- "confused"
+- "clear_example"
+
+FeedbackItem
+- sessionId: string
+- studentId: string
+- topicId: string
+- feedbackType: FeedbackType
+- time: string
+
+DashboardMetrics
+- onlineCount: number
+- feedbackCount: number
+- confusionRate: number
+- feedbackSummary: Record<string, number>
+- trendPoints: Array<{ time: string; value: number }>
+- alert: AlertInfo | null
+
+AlertInfo
+- alertLevel: "low" | "medium" | "high"
+- alertMessage: string
+- topicId: string
+
+StrategyItem
+- type: "analogy" | "visual" | "quick_check"
+- title: string
+- text: string
+
+AskResult
+- answer: string
+- confidence: "high" | "medium" | "low"
+- sourceNotes: SourceNote[]
+- safeNote: string
+
+SourceNote
+- sourceName: string
+- page: string
+- title: string
+
+MindMapNode
+- id: string
+- data: { label: string }
+- position: { x: number; y: number }
+
+MindMapEdge
+- id: string
+- source: string
+- target: string
+
+MindMapResult
+- courseName: string
+- summaryPoints: string[]
+- nodes: MindMapNode[]
+- edges: MindMapEdge[]
+- sourceSlides: string[]
+- updatedAt: string
+
+
+13. Retrieval Design
+
+Use a simple local retrieval method that works with Chinese content.
+
+Step 1
+- Read the student question as Chinese text
+
+Step 2
+- Score each chunk by:
+  - topicId exact match
+  - keyword overlap count
+  - title phrase match
+  - content phrase match
+
+Step 3
+- Sort by score
+
+Step 4
+- Keep top 3 chunks with positive score
+
+Step 5
+- Send only these chunks to DeepSeek
+
+Prompt rule
+- Ask the model to answer only from provided material
+- Ask the model to avoid unsupported claims
+- Ask the model to answer in simple Chinese teaching language
+
+
+14. PPT Summary And Mind Map Design
+
+14.1 Input rule
+- Accept .pptx file only
+- Demo assumes text-based teaching PPT
+- Demo does not support scanned image slides
+
+14.2 Extraction rule
+- Read slide title text
+- Read slide body text
+- Merge text by slide order
+- Keep slide number for traceability
+
+14.3 Summary rule
+- Build 4 to 8 key knowledge points
+- Each point must use short Chinese wording
+- Use local topic hints first if topicId exists
+- Let DeepSeek clean and organize the points
+
+14.4 Mind map rule
+- Root node is the course name or current topic
+- First layer is major knowledge points
+- Second layer can contain 1 to 3 short sub points when available
+- Layout should be stable and readable
+
+14.5 Shared display rule
+- Teacher page shows upload, extraction preview, summary, and mind map
+- Student page shows the latest summary and mind map without upload control
+
+
+15. UI Style Rules
+
+- Clean classroom dashboard style
+- Light background
+- Blue as main color
+- Orange or red only for alert states
+- Large numbers for confusion rate and pressure score
+- Chart area should be simple and readable
+- Student pages should have large buttons for live demo
+- Mind map labels should be Chinese and easy to scan
+- Keep the number of interactive elements low
+
+
+16. Directory Structure
+
+Use this exact directory structure.
+
+app/
+  api/
+    ask/
+    feedback/
+    metrics/
+    mindmap/
+    pressure/
+    strategy/
+  student/
+    ask/
+    feedback/
+    mindmap/
+  teacher/
+    dashboard/
+    mindmap/
+    pressure/
+
+components/
+  shared/
+  student/
+  teacher/
+
+data/
+  course-materials.json
+  mindmap-data.json
+  pressure-data.json
+  session-state.json
+  strategy-library.json
+
+docs/
+  demo_technical_plan.txt
+
+lib/
+  anti-fake.ts
+  api-client.ts
+  confidence.ts
+  file-store.ts
+  mindmap-layout.ts
+  ppt-parser.ts
+  retrieval.ts
+  socket-client.ts
+  strategy-engine.ts
+  threshold.ts
+  time.ts
+
+public/
+  demo/
+
+server/
+  index.ts
+  socket.ts
+  state.ts
+
+types/
+  api.ts
+  classroom.ts
+  mindmap.ts
+  strategy.ts
+
+
+17. Implementation Priority
+
+Build in this order:
+
+1. Create static web pages and basic layout
+2. Add Socket.IO server and student feedback event
+3. Add teacher metrics update and threshold logic
+4. Add strategy library loading and strategy cards
+5. Add student ask API and source note output
+6. Add pressure page from mocked data
+7. Add PPT parser, summary API, and teacher mind map page
+8. Add student mind map page with shared data
+9. Polish Chinese UI text and demo display
+
+
+18. Code Style Rules
+
+- Use TypeScript in all app, server, and lib files
+- Use functional React components only
+- Keep functions short and single purpose
+- Keep comments simple and short
+- Keep names simple, such as getScore, loadData, sendFeedback, buildAlert, parsePpt, buildMindMap
+- Avoid abstract patterns that slow down Codex
+- Prefer clear local helper functions over heavy class design
+- Keep all user-facing copy in Chinese
+
+
+19. Final Demo Standard
+
+The demo is successful when it can do all of the following:
+
+- A student can send feedback from the web feedback page
+- The teacher dashboard web page updates in real time
+- An alert appears when confusion rate rises
+- The teacher sees three strategy suggestions for the current topic
+- A student can ask a question and receive an answer with source note
+- Low confidence answers use safe wording in Chinese
+- The pressure page shows stable mocked results and strategy suggestions
+- The teacher can upload a .pptx file and generate a knowledge summary
+- The generated mind map can be viewed on both the teacher web page and the student web page
+
+This plan is optimized for fast implementation, stable presentation, and clear classroom AI value while still reflecting the original project ideas.

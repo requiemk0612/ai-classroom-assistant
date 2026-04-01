@@ -1,0 +1,104 @@
+﻿Baseline Consistency Check
+
+Date
+- 2026-04-01
+
+Scope
+- Check current code against docs/demo_technical_plan.txt
+- Focus on page shape, user-facing text, naming rules, required routes and APIs, PPT to mind map flow, and DeepSeek fallback
+
+Result Summary
+- Overall status: mostly aligned, but not fully aligned
+- Core demo structure remains intact
+- Main risks are API contract drift and a few lightweight feature gaps relative to the technical plan
+
+Confirmed Aligned Items
+- Teacher side and student side remain web pages only
+- Required page routes exist:
+  - /student/feedback
+  - /student/ask
+  - /student/mindmap
+  - /teacher/dashboard
+  - /teacher/pressure
+  - /teacher/mindmap
+- Required API routes exist:
+  - /api/feedback
+  - /api/metrics
+  - /api/strategy
+  - /api/ask
+  - /api/pressure
+  - /api/mindmap
+- User-facing page text is Chinese in the current page and component layer
+- Comments and variable names are simple English overall
+- PPT -> knowledge points -> mind map flow still exists
+- DeepSeek is optional and local fallback still exists when no API key is present
+- Fixed technical stack is still consistent in practice:
+  - Next.js 15
+  - React 19
+  - TypeScript
+  - Tailwind CSS
+  - ECharts
+  - React Flow
+  - Socket.IO
+  - JSZip
+  - fast-xml-parser
+  - Zod
+  - local JSON data
+
+Confirmed Fallback Status
+- Strategy fallback exists in lib/strategy-engine.ts
+- Ask fallback exists in lib/retrieval.ts and app/api/ask/route.ts
+- Mind map fallback exists in app/api/mindmap/route.ts
+- Therefore the demo can still present without DeepSeek
+
+Inconsistencies Found
+
+1. API contract drift in /api/strategy
+- Technical plan expects topicId, confusionRate, trendUp, and feedbackSummary in the request body
+- Current route only reads topicId and confusionRate
+- File: `app/api/strategy/route.ts:1`
+
+2. API contract drift in /api/metrics
+- Technical plan expects sessionId query support
+- Current route ignores query parameters and always reads the same local session data
+- File: `app/api/metrics/route.ts:1`
+
+3. API contract drift in /api/pressure
+- Technical plan expects sessionId query support
+- Current route ignores query parameters and always reads the same local pressure data
+- File: `app/api/pressure/route.ts:1`
+
+4. API contract drift in /api/mindmap GET
+- Technical plan expects topicId query support
+- Current GET route ignores query parameters and returns the latest stored mind map directly
+- File: `app/api/mindmap/route.ts:1`
+
+5. Anti-fake rule is only partially implemented
+- Technical plan mentions cooldown, duplicate limit, and simple session filtering
+- Current implementation mainly enforces cooldown and basic id presence through route logic
+- Duplicate cleanup and session-level filtering are not fully implemented
+- Files:
+  - `lib/anti-fake.ts:1`
+  - `app/api/feedback/route.ts:1`
+  - `server/socket.ts:1`
+
+6. Student feedback page does not yet show a real mood bar style block
+- Technical plan calls for a mood bar or recent class mood block
+- Current page has mood tips and status blocks, but not a real bar-style summary component
+- File: `components/student/student-feedback-client.tsx:1`
+
+Non-blocking Notes
+- The current implementation is still demo-usable despite the API drift because the app is wired to the existing routes consistently
+- The stack and major product flows remain faithful to the technical plan
+- The main presentation path has not been weakened or removed
+
+Recommended Fix Order
+1. Align /api/strategy body with the documented fields
+2. Add query support to /api/metrics, /api/pressure, and /api/mindmap
+3. Complete duplicate filtering in anti-fake logic
+4. Add a lightweight mood bar style block on the student feedback page
+
+Conclusion
+- The project still matches the intended demo architecture and technical stack
+- The key demo flows are preserved
+- It does not fully satisfy every documented API detail yet, so the current status should be treated as "mostly consistent with a few actionable gaps"

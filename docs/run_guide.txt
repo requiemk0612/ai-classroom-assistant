@@ -1,0 +1,63 @@
+Run Guide
+
+1. Purpose
+
+This document describes how to run the first project skeleton after Node.js is available.
+It must stay consistent with docs/demo_technical_plan.txt and docs/project_skeleton_status.txt.
+
+
+2. Required Environment
+
+- Node.js 20 or newer
+- npm 10 or newer
+- Windows PowerShell or a compatible shell
+
+
+3. Install Steps
+
+Run these commands in the project root:
+
+- npm install
+- npm run dev
+
+The dev command starts the custom Node server defined in server/index.ts.
+The app is expected to run at http://localhost:3000.
+
+
+4. Quick Verification List
+
+After the server starts, verify these routes:
+
+- /
+- /student/feedback
+- /student/ask
+- /student/mindmap
+- /teacher/dashboard
+- /teacher/pressure
+- /teacher/mindmap
+
+Verify these behaviors:
+
+- Student feedback page shows Chinese buttons
+- Teacher dashboard shows Chinese cards and chart areas
+- Student ask page returns local grounded answer data
+- Teacher pressure page shows weather style status and simplification pack
+- Teacher mind map page can submit a .pptx file to the current parser route
+- Student mind map page shows the latest stored mind map
+
+
+5. Current Skeleton Limits
+
+- AI provider integration is not fully connected yet
+- PPT summary quality is still basic
+- Real-time feedback flow still needs browser-side verification after dependency install
+
+
+6. Recommended Follow-up
+
+After local run verification, continue with:
+
+1. DeepSeek integration
+2. Full Socket.IO live test
+3. PPT summary quality improvement
+4. Final competition UI polish

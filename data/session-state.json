@@ -1,0 +1,152 @@
+{
+  "sessionId": "demo_session_001",
+  "topicId": "gradient",
+  "onlineStudents": [
+    "stu_001",
+    "stu_002",
+    "stu_003",
+    "stu_004",
+    "stu_005",
+    "stu_006",
+    "runtime_test",
+    "socket_test",
+    "alert_student_0",
+    "alert_student_1",
+    "alert_student_2",
+    "alert_student_3",
+    "alert_student_4",
+    "alert_student_5",
+    "alert_student_6",
+    "alert_student_7",
+    "alert_now_0",
+    "alert_now_1",
+    "alert_now_2",
+    "alert_now_3",
+    "alert_now_4",
+    "alert_now_5",
+    "alert_now_6",
+    "alert_now_7"
+  ],
+  "feedbackLog": [
+    {
+      "studentId": "stu_001",
+      "feedbackType": "understand",
+      "time": "2026-03-31T09:00:12+08:00"
+    },
+    {
+      "studentId": "stu_002",
+      "feedbackType": "too_fast",
+      "time": "2026-03-31T09:00:16+08:00"
+    },
+    {
+      "studentId": "stu_003",
+      "feedbackType": "confused",
+      "time": "2026-03-31T09:00:18+08:00"
+    },
+    {
+      "studentId": "stu_004",
+      "feedbackType": "clear_example",
+      "time": "2026-03-31T09:00:26+08:00"
+    },
+    {
+      "studentId": "stu_005",
+      "feedbackType": "too_fast",
+      "time": "2026-03-31T09:00:30+08:00"
+    },
+    {
+      "studentId": "stu_006",
+      "feedbackType": "confused",
+      "time": "2026-03-31T09:00:32+08:00"
+    },
+    {
+      "studentId": "runtime_test",
+      "feedbackType": "confused",
+      "time": "2026-04-01T11:53:36.0698608+08:00"
+    },
+    {
+      "studentId": "socket_test",
+      "feedbackType": "too_fast",
+      "time": "2026-04-01T03:53:54.911Z"
+    },
+    {
+      "studentId": "alert_student_0",
+      "feedbackType": "confused",
+      "time": "2026-04-01T03:54:12.099Z"
+    },
+    {
+      "studentId": "alert_student_1",
+      "feedbackType": "confused",
+      "time": "2026-04-01T03:54:12.100Z"
+    },
+    {
+      "studentId": "alert_student_2",
+      "feedbackType": "confused",
+      "time": "2026-04-01T03:54:12.100Z"
+    },
+    {
+      "studentId": "alert_student_3",
+      "feedbackType": "confused",
+      "time": "2026-04-01T03:54:12.100Z"
+    },
+    {
+      "studentId": "alert_student_4",
+      "feedbackType": "confused",
+      "time": "2026-04-01T03:54:12.100Z"
+    },
+    {
+      "studentId": "alert_student_5",
+      "feedbackType": "confused",
+      "time": "2026-04-01T03:54:12.100Z"
+    },
+    {
+      "studentId": "alert_student_6",
+      "feedbackType": "too_fast",
+      "time": "2026-04-01T03:54:12.100Z"
+    },
+    {
+      "studentId": "alert_student_7",
+      "feedbackType": "too_fast",
+      "time": "2026-04-01T03:54:12.100Z"
+    },
+    {
+      "studentId": "alert_now_0",
+      "feedbackType": "confused",
+      "time": "2026-04-01T03:55:41.0473466Z"
+    },
+    {
+      "studentId": "alert_now_1",
+      "feedbackType": "confused",
+      "time": "2026-04-01T03:55:41.1723144Z"
+    },
+    {
+      "studentId": "alert_now_2",
+      "feedbackType": "confused",
+      "time": "2026-04-01T03:55:41.1889113Z"
+    },
+    {
+      "studentId": "alert_now_3",
+      "feedbackType": "confused",
+      "time": "2026-04-01T03:55:41.2056591Z"
+    },
+    {
+      "studentId": "alert_now_4",
+      "feedbackType": "confused",
+      "time": "2026-04-01T03:55:41.2209080Z"
+    },
+    {
+      "studentId": "alert_now_5",
+      "feedbackType": "confused",
+      "time": "2026-04-01T03:55:41.2357988Z"
+    },
+    {
+      "studentId": "alert_now_6",
+      "feedbackType": "confused",
+      "time": "2026-04-01T03:55:41.2509241Z"
+    },
+    {
+      "studentId": "alert_now_7",
+      "feedbackType": "confused",
+      "time": "2026-04-01T03:55:41.2728880Z"
+    }
+  ]
+}

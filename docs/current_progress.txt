@@ -1,0 +1,45 @@
+﻿Current Progress
+
+Status
+- Phase: Baseline consistency re-check completed
+- Last completed stable milestone: runtime verification passed and baseline consistency report written
+- Current status: mostly aligned with docs/demo_technical_plan.txt, but a few API contract and lightweight feature gaps remain
+- Source of truth: docs/demo_technical_plan.txt
+
+Consistency Check Baseline
+- Teacher side and student side are web pages
+- User-facing text must stay Chinese
+- Comments and variable names must stay simple English
+- Required routes and APIs must stay aligned with the technical plan
+- PPT to mind map flow must remain in the demo
+- Local fallback must remain available when AI service is unavailable
+
+Current Findings
+- Core structure is still aligned
+- DeepSeek fallback is still available
+- PPT to knowledge points to mind map flow still exists
+- Main page routes still exist
+- Main API routes still exist
+- Remaining drift is mainly in documented API fields and a few lightweight UI details
+
+Open Gaps
+1. /api/strategy request body is lighter than the technical plan
+2. /api/metrics does not yet use sessionId query
+3. /api/pressure does not yet use sessionId query
+4. /api/mindmap GET does not yet use topicId query
+5. Anti-fake logic is only partially implemented
+6. Student feedback page still needs a more explicit mood bar style block
+
+Planned Order
+1. Align API contracts with the technical plan
+2. Finish anti-fake and mood bar details
+3. Continue browser-side integration and UI polish
+4. Strengthen student feedback to teacher dashboard to alert to strategy flow
+5. Verify DeepSeek-backed strategy rewrite and grounded answer generation
+6. Improve PPT summary and mind map generation quality
+7. Run verification and update docs
+
+Live Notes
+- Baseline consistency report is in docs/baseline_consistency_check.txt
+- Context handoff is in docs/context_handoff.txt
+- Next code changes must be checked against docs/demo_technical_plan.txt before finalizing

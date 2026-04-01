@@ -1,0 +1,98 @@
+Runtime Integration Update
+
+1. Purpose
+
+This document records the second implementation pass after the first project skeleton.
+The goal of this pass is to make the main demo pages closer to direct local run and page-level integration.
+Every change in this pass has been checked against the requirements in the docs directory, especially docs/demo_technical_plan.txt.
+
+
+2. Requirement Consistency Check
+
+Checked against docs/demo_technical_plan.txt:
+
+- Teacher side and student side remain web pages only
+- All user-facing page text remains Chinese
+- Comments and variable names remain simple English
+- The fixed stack remains unchanged
+- The project still uses local JSON as the default data source
+- The required pages still exist:
+  - /student/feedback
+  - /student/ask
+  - /student/mindmap
+  - /teacher/dashboard
+  - /teacher/pressure
+  - /teacher/mindmap
+- The required API routes still exist:
+  - /api/feedback
+  - /api/metrics
+  - /api/strategy
+  - /api/ask
+  - /api/pressure
+  - /api/mindmap
+- The PPT to mind map flow remains part of the demo
+- The pressure page still includes weather style display and simplification pack
+- The dashboard still includes confusion rate, charts, alert, and strategy suggestions
+- The student ask page still includes source notes and safe wording
+
+No requirement in docs was intentionally removed in this pass.
+
+
+3. Main Integration Improvements In This Pass
+
+- Student feedback page now shows socket connection status and feedback rejection status
+- Teacher dashboard now pulls latest metrics from /api/metrics on mount
+- Teacher dashboard now requests strategy data from /api/strategy when alert conditions appear
+- Teacher pressure page now requests latest data from /api/pressure on mount
+- Student ask page now uses shared API client helpers and clearer status text
+- Student mind map page now requests latest data from /api/mindmap on mount
+- Teacher mind map page now requests latest data from /api/mindmap on mount
+- Teacher mind map page now validates .pptx input more clearly before submit
+- Retrieval output is now closer to a concise grounded answer instead of raw chunk dump
+- PostCSS config was updated to match the ESM project setup
+
+
+4. Files Updated In This Pass
+
+Core integration files:
+- components/student/student-feedback-client.tsx
+- components/student/student-ask-client.tsx
+- components/student/student-mindmap-client.tsx
+- components/teacher/teacher-dashboard-client.tsx
+- components/teacher/teacher-pressure-client.tsx
+- components/teacher/teacher-mindmap-client.tsx
+- lib/retrieval.ts
+- lib/strategy-engine.ts
+- postcss.config.js
+
+Support files used by this pass:
+- lib/api-client.ts
+- app/api/metrics/route.ts
+- app/api/strategy/route.ts
+- app/api/pressure/route.ts
+- app/api/mindmap/route.ts
+
+
+5. Remaining Risk And Verification Notes
+
+The local shell still does not provide Node.js or npm, so the project could not be executed in this session.
+Because of that, this pass includes code-level consistency checks and static review, but not actual runtime verification.
+
+The next verification step after Node.js is available should be:
+- npm install
+- npm run dev
+- browser verification of all six main pages
+- browser verification of the feedback to dashboard live flow
+- browser verification of .pptx upload in the teacher mind map page
+
+
+6. Recommended Next Step
+
+The recommended next step is a real local run and debugging pass.
+That pass should focus on:
+1. dependency installation
+2. runtime errors
+3. Socket.IO connection verification
+4. chart rendering verification
+5. PPT upload verification
+6. final Chinese UI polish for competition demo

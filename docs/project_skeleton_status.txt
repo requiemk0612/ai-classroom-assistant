@@ -1,0 +1,77 @@
+Project Skeleton Status
+
+1. Objective
+
+This document records the scope of the current runnable project skeleton.
+The skeleton must stay aligned with docs/demo_technical_plan.txt.
+All user-facing content in the app must stay in Chinese.
+All code comments and variable names must stay in simple English.
+Both teacher side and student side are web pages.
+
+
+2. What Is Included In This Skeleton
+
+Completed in the current skeleton:
+- Next.js 15 project configuration
+- App Router page structure
+- Shared page shell and navigation
+- Student feedback page with socket status display
+- Student ask page with grounded local answer flow
+- Student mind map page with latest API sync
+- Teacher dashboard page with metrics sync and strategy sync
+- Teacher pressure page with pressure API sync
+- Teacher mind map page with upload form and latest API sync
+- Local JSON reading helpers
+- Basic API routes
+- Socket.IO custom server skeleton
+- ECharts dashboard skeleton
+- React Flow mind map skeleton
+- Basic PPT text extraction route for .pptx files
+- txt engineering documentation
+
+
+3. What Is Intentionally Lightweight In This Skeleton
+
+The following parts are simplified on purpose so that the project can stay runnable as a demo-first skeleton:
+- DeepSeek is not fully connected yet; local fallback data is used first
+- PPT upload route supports basic text extraction, but advanced summary quality tuning is a later module
+- Strategy generation currently uses the local strategy library directly
+- Retrieval is local rule-based retrieval from JSON chunks
+- Runtime verification still depends on local Node.js installation
+
+
+4. Consistency Check Against The Technical Plan
+
+Aligned items:
+- All main teacher and student pages exist as web routes
+- Chinese user-facing text is used in the page layer
+- The project uses the fixed stack direction from the technical plan
+- Data files are read from the local data directory
+- The PPT to mind map feature has a dedicated route, page, and API skeleton
+- Pressure page includes weather style status, micro strategies, and simplification pack
+- Dashboard includes topic selector, confusion rate, chart area, alert area, and strategy area
+- Student ask page includes answer, source note, and safe note area
+- Student and teacher mind map pages both exist
+- Page-level API sync has been added for the main teacher and student views
+
+Known gaps reserved for later modules:
+- DeepSeek output rewrite and answer generation
+- Final PPT summary quality tuning with stronger topic guidance
+- Full threshold behavior under live classroom load testing
+- Final UI polish for competition presentation
+
+
+5. Local Environment Note
+
+Node.js and npm were not available in the local shell at the time of generation, so package installation and runtime verification could not be executed in this session.
+The codebase has been scaffolded to match the planned architecture, but the next step should be dependency installation and local run verification.
+
+
+6. Recommended Next Step
+
+Recommended next implementation order:
+1. Install dependencies and start the dev server
+2. Verify page routing and local JSON loading
+3. Verify Socket.IO feedback flow
+4. Connect DeepSeek and refine answer style
+5. Improve PPT summary quality and final competition polish

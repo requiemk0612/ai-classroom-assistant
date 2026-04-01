@@ -1,0 +1,552 @@
+Codex Build Prompts For AI Classroom Assistant Demo
+
+Usage rule
+- These prompts are for an AI coding assistant.
+- Follow the prompts in the exact order.
+- All code comments and variable names must use simple English.
+- All user-facing text must be Chinese.
+- Both teacher side and student side must be web pages.
+- All documents must stay in .txt format.
+- Keep the implementation lightweight and demo-first.
+- Follow docs/demo_technical_plan.txt exactly.
+
+Day 1
+
+Module 1
+Time block
+- Day 1, 09:00-10:00
+
+Goal
+- Create the project foundation, page routes, and shared layout for the demo.
+
+Prompt
+You are building a lightweight demo called AI Classroom Assistant.
+Please create the initial project skeleton based on docs/demo_technical_plan.txt.
+
+Requirements:
+1. Use Next.js 15, React 19, TypeScript, and Tailwind CSS.
+2. Create route folders for:
+   - /student/feedback
+   - /student/ask
+   - /student/mindmap
+   - /teacher/dashboard
+   - /teacher/pressure
+   - /teacher/mindmap
+3. Create shared layout and placeholder page files for all routes.
+4. All visible page text must be Chinese.
+5. Keep comments and variable names in simple English.
+6. Use simple and clean UI blocks with Tailwind only.
+7. Add a top-level navigation pattern that makes the demo easy to switch during a live presentation.
+8. Do not add login, auth, database, or admin features.
+9. Keep the code organized according to docs/demo_technical_plan.txt directory structure.
+10. Output code for the page files, any shared layout files, and a short note about where each file should be placed.
+
+Expected output
+- Basic route pages exist.
+- Each page has a Chinese title and placeholder sections.
+- The project is ready for component work.
+
+
+Module 2
+Time block
+- Day 1, 10:00-12:00
+
+Goal
+- Build the student feedback page with real-time action UI.
+
+Prompt
+Please implement the student feedback page for the AI Classroom Assistant demo.
+
+Requirements:
+1. Route: /student/feedback
+2. The page must be a web page for students during class.
+3. Build these Chinese feedback buttons:
+   - 听懂了
+   - 有点快
+   - 没听懂
+   - 这个例子很清楚
+4. Generate an anonymous studentId on first load and keep it in localStorage.
+5. Show the current topic in Chinese near the top.
+6. Show a small status area after each submit, such as "反馈已发送".
+7. Add a small mood summary area under the buttons.
+8. Use large buttons and mobile-friendly spacing.
+9. Do not expose English text in the UI.
+10. Keep state logic simple and clean.
+11. Prepare the page for Socket.IO integration, but keep the component boundaries clear.
+12. Use simple English comments and variable names only.
+
+Suggested files
+- app/student/feedback/page.tsx
+- components/student/feedback-buttons.tsx
+- components/student/feedback-status.tsx
+- components/student/student-header.tsx
+- components/student/mood-bar.tsx
+
+Expected output
+- A complete student feedback page UI with reusable components.
+
+
+Module 3
+Time block
+- Day 1, 13:30-15:30
+
+Goal
+- Add the Node custom server and Socket.IO real-time feedback flow.
+
+Prompt
+Please implement the real-time feedback layer for the AI Classroom Assistant demo.
+
+Requirements:
+1. Use a Node custom server with Socket.IO, as defined in docs/demo_technical_plan.txt.
+2. Add a client socket helper and a server socket handler.
+3. Support event:
+   - feedback:send
+4. The payload must match the document:
+   - sessionId
+   - studentId
+   - topicId
+   - feedbackType
+   - time
+5. Keep session state in memory for the demo.
+6. Also prepare a simple local JSON backup path through data/session-state.json.
+7. Add a lightweight anti-fake rule:
+   - one feedback per student per 3 seconds
+   - keep only the latest repeated feedback in a short window
+8. Keep all code lightweight and easy to follow.
+9. Do not introduce Redis, database, queues, or complex event architecture.
+10. Use simple English comments and variable names.
+
+Suggested files
+- server/index.ts
+- server/socket.ts
+- server/state.ts
+- lib/socket-client.ts
+- lib/anti-fake.ts
+- lib/file-store.ts
+- types/classroom.ts
+
+Expected output
+- A working real-time feedback event path from student client to server state.
+
+
+Module 4
+Time block
+- Day 1, 15:30-17:30
+
+Goal
+- Build teacher dashboard metrics and threshold logic.
+
+Prompt
+Please implement the teacher dashboard data flow and metrics logic for the AI Classroom Assistant demo.
+
+Requirements:
+1. Route: /teacher/dashboard
+2. Show these blocks on the teacher web page:
+   - current topic selector
+   - online student count
+   - confusion rate big number
+   - feedback heatmap or stacked chart area
+   - recent trend line area
+   - alert card area
+   - strategy card list area
+3. Implement confusionRate using the fixed formula from docs/demo_technical_plan.txt.
+4. Implement threshold logic:
+   - current window: 30 seconds
+   - last window: previous 30 seconds
+   - feedback count in current window >= 8
+   - confusionRate >= 0.30
+   - rise from last window >= 0.10
+5. Emit or refresh metrics with a clean structure.
+6. Keep the chart data structure ready for ECharts.
+7. All UI labels and messages must be Chinese.
+8. Comments and variable names must be simple English.
+9. Keep the design presentation-friendly with large numbers and clear blocks.
+
+Suggested files
+- app/teacher/dashboard/page.tsx
+- components/teacher/big-rate-card.tsx
+- components/teacher/heatmap-chart.tsx
+- components/teacher/trend-chart.tsx
+- components/teacher/alert-card.tsx
+- lib/threshold.ts
+- app/api/metrics/route.ts
+
+Expected output
+- A teacher dashboard with real-time-ready metrics and alert logic.
+
+
+Module 5
+Time block
+- Day 1, 19:00-21:00
+
+Goal
+- Connect student feedback page to teacher dashboard and verify live update behavior.
+
+Prompt
+Please connect the student feedback page and teacher dashboard into one working real-time demo flow.
+
+Requirements:
+1. When a student clicks a feedback button, send feedback:send through Socket.IO.
+2. Update in-memory state on the server.
+3. Push metrics:update to the teacher dashboard.
+4. Refresh the dashboard cards and charts immediately.
+5. If threshold conditions are met, show the alert area in Chinese.
+6. Keep the code small and stable for demo use.
+7. Add helpful fallback handling if the socket is temporarily disconnected.
+8. Do not add unnecessary abstractions.
+9. Use simple English comments and variable names.
+10. Keep visible text in Chinese.
+
+Expected output
+- A live two-page feedback demo that works in two browser windows.
+
+
+Day 2
+
+Module 6
+Time block
+- Day 2, 09:00-10:30
+
+Goal
+- Integrate the local strategy library into a rule-first teaching suggestion engine.
+
+Prompt
+Please implement the teaching strategy engine for the AI Classroom Assistant demo.
+
+Requirements:
+1. Read local data from data/strategy-library.json.
+2. Use topicId to find the current topic.
+3. Pick three strategy items by fixed type:
+   - analogy
+   - visual
+   - quick_check
+4. Build a simple rule-first result object before any AI rewrite.
+5. Then prepare a small DeepSeek call that rewrites the selected items into natural teacher-facing Chinese text.
+6. Do not allow the model to invent unsupported teaching facts.
+7. The final strategy cards must reflect the project idea clearly:
+   - one classic analogy
+   - one visual teaching action
+   - one fast anonymous check activity
+8. Keep the output stable even if the AI call fails.
+9. If the AI call fails, use the original library text directly.
+10. Keep comments and variable names in simple English.
+
+Suggested files
+- lib/strategy-engine.ts
+- app/api/strategy/route.ts
+- types/strategy.ts
+
+Expected output
+- A stable strategy engine that works with or without AI rewrite.
+
+
+Module 7
+Time block
+- Day 2, 10:30-12:00
+
+Goal
+- Show teacher strategy cards and alert messages in the dashboard.
+
+Prompt
+Please connect the strategy engine to the teacher dashboard page.
+
+Requirements:
+1. When the threshold alert is triggered, request strategy data.
+2. Show an alert card in Chinese, for example a confusion warning tied to the current topic.
+3. Show three strategy cards with clear Chinese titles and short action text.
+4. Use clean visual grouping so the teacher can understand the advice in a few seconds.
+5. Make the UI feel like a live AI teaching assistant, not a generic admin panel.
+6. Keep the code simple and easy to change.
+7. Use simple English comments and variable names.
+
+Suggested files
+- components/teacher/strategy-list.tsx
+- components/teacher/alert-card.tsx
+- app/teacher/dashboard/page.tsx
+
+Expected output
+- The dashboard displays topic-aware strategy suggestions after an alert.
+
+
+Module 8
+Time block
+- Day 2, 13:30-15:30
+
+Goal
+- Build the student ask page and grounded answer API.
+
+Prompt
+Please implement the student question and answer feature for the AI Classroom Assistant demo.
+
+Requirements:
+1. Route: /student/ask
+2. Build a web page with:
+   - Chinese question input
+   - Chinese submit button
+   - answer card
+   - source note card
+   - confidence badge
+   - safe note area
+3. Use data/course-materials.json as the local grounding source.
+4. Implement simple retrieval with these score factors:
+   - topicId exact match
+   - keyword overlap
+   - title phrase match
+   - content phrase match
+5. Keep top 3 positive chunks.
+6. Call DeepSeek with only the selected chunks.
+7. Require the model to answer only from provided material.
+8. The answer must be in simple Chinese teaching language.
+9. Do not use embeddings, vector database, or external retrieval services.
+10. Keep comments and variable names in simple English.
+
+Suggested files
+- app/student/ask/page.tsx
+- app/api/ask/route.ts
+- components/student/ask-form.tsx
+- components/student/answer-card.tsx
+- components/student/source-card.tsx
+- components/student/confidence-badge.tsx
+- lib/retrieval.ts
+- lib/confidence.ts
+
+Expected output
+- A grounded student Q and A flow with source notes.
+
+
+Module 9
+Time block
+- Day 2, 15:30-17:30
+
+Goal
+- Add confidence grading and safe fallback wording.
+
+Prompt
+Please finish the confidence and safe-answer behavior for the student ask feature.
+
+Requirements:
+1. Use the fixed confidence levels:
+   - high
+   - medium
+   - low
+2. Follow docs/demo_technical_plan.txt for confidence conditions.
+3. If confidence is low:
+   - use careful Chinese wording
+   - show a safe note in Chinese
+   - do not present the answer as fully certain
+4. The safe note should match the teaching safety style of the project.
+5. Make the confidence badge visible and easy to understand.
+6. Keep the answer card and source card clean.
+7. Comments and variable names must be simple English.
+
+Expected output
+- The student ask page behaves safely and matches the teaching scenario.
+
+
+Module 10
+Time block
+- Day 2, 19:00-21:00
+
+Goal
+- Build the teacher pressure page with mocked class data.
+
+Prompt
+Please implement the pressure sensing page for the AI Classroom Assistant demo.
+
+Requirements:
+1. Route: /teacher/pressure
+2. Read data from data/pressure-data.json.
+3. Show these blocks on the teacher web page:
+   - pressure score
+   - weather style card
+   - homework speed
+   - accuracy rate
+   - mood words
+   - micro strategy suggestions
+   - knowledge simplification pack card
+4. All visible text must be Chinese.
+5. Use a simple weather metaphor such as 晴天, 多云, 雷暴.
+6. Make the page visually clear for presentation.
+7. Keep the data flow simple and local.
+8. Do not build a full homework system.
+9. Use simple English comments and variable names.
+
+Suggested files
+- app/teacher/pressure/page.tsx
+- app/api/pressure/route.ts
+- components/teacher/pressure-card.tsx
+- components/teacher/weather-card.tsx
+- components/teacher/micro-strategy-list.tsx
+- components/teacher/simplification-pack-card.tsx
+
+Expected output
+- A clean pressure page that matches the original project idea.
+
+
+Day 3
+
+Module 11
+Time block
+- Day 3, 09:00-11:30
+
+Goal
+- Build PPT parsing and knowledge extraction for the mind map feature.
+
+Prompt
+Please implement the PPT parsing and knowledge point extraction feature for the AI Classroom Assistant demo.
+
+Requirements:
+1. Build the teacher mind map feature as a web page.
+2. Route: /teacher/mindmap
+3. Support .pptx upload only.
+4. Use JSZip and fast-xml-parser to extract slide title text and body text.
+5. Ignore images, animation, and complex layout.
+6. Keep slide order and preserve simple slide trace text such as slide number.
+7. Generate a combined text result from the PPT.
+8. Create a summary step that produces 4 to 8 key knowledge points in Chinese.
+9. If topicId exists, use local topic hints from strategy-library.json to help structure the summary.
+10. Use DeepSeek only to clean and organize the extracted points into short Chinese knowledge items.
+11. Save the result into data/mindmap-data.json.
+12. Keep the logic lightweight and demo-stable.
+13. Use simple English comments and variable names.
+
+Suggested files
+- app/teacher/mindmap/page.tsx
+- app/api/mindmap/route.ts
+- lib/ppt-parser.ts
+- lib/file-store.ts
+- types/mindmap.ts
+
+Expected output
+- A teacher-side upload flow that extracts PPT text and generates summary points.
+
+
+Module 12
+Time block
+- Day 3, 11:30-13:00
+
+Goal
+- Generate and display the mind map structure for both teacher and student pages.
+
+Prompt
+Please implement the mind map display flow for the AI Classroom Assistant demo.
+
+Requirements:
+1. Use React Flow for mind map rendering.
+2. Build a simple tree-style layout.
+3. Read the latest data from data/mindmap-data.json.
+4. Teacher page must show:
+   - upload area
+   - extracted slide preview
+   - summary points
+   - mind map canvas
+5. Student page route: /student/mindmap must show:
+   - Chinese title
+   - current lesson name
+   - summary points
+   - mind map canvas
+   - update time
+6. All labels in the mind map must be Chinese.
+7. Keep the layout stable and readable for a projector screen.
+8. Do not build advanced graph editing.
+9. Use simple English comments and variable names.
+
+Suggested files
+- app/student/mindmap/page.tsx
+- components/shared/mindmap-view.tsx
+- components/teacher/ppt-upload-box.tsx
+- components/teacher/slide-preview.tsx
+- components/shared/point-summary.tsx
+- lib/mindmap-layout.ts
+
+Expected output
+- The generated mind map can be viewed on both the teacher side and the student side.
+
+
+Module 13
+Time block
+- Day 3, 14:00-16:30
+
+Goal
+- Polish the Chinese UI and align all pages with the demo script.
+
+Prompt
+Please polish the UI and text across the full AI Classroom Assistant demo.
+
+Requirements:
+1. Review all routes:
+   - /student/feedback
+   - /student/ask
+   - /student/mindmap
+   - /teacher/dashboard
+   - /teacher/pressure
+   - /teacher/mindmap
+2. Ensure all visible text is Chinese.
+3. Ensure the visual style is consistent:
+   - light background
+   - blue main color
+   - orange or red for alert states
+   - large key numbers
+   - presentation-friendly spacing
+4. Make sure the dashboard feels like a teaching assistant, not a data backend.
+5. Keep the student pages simple and large-button friendly.
+6. Keep the pressure page weather metaphor clear.
+7. Keep the mind map page easy to understand during a live demo.
+8. Do not change the fixed architecture.
+9. Use simple English comments and variable names.
+
+Expected output
+- A clean, unified, Chinese presentation UI.
+
+
+Module 14
+Time block
+- Day 3, 16:30-18:30
+
+Goal
+- Add final demo safety, fallback handling, and local data initialization.
+
+Prompt
+Please finalize the demo behavior for stability and presentation.
+
+Requirements:
+1. Make sure the app can run even if the AI API is temporarily unavailable.
+2. Add fallback behavior for:
+   - strategy rewrite failure
+   - ask answer generation failure
+   - mind map summary generation failure
+3. In fallback cases, use local JSON content or simple local rule output.
+4. Make sure the app reads initial example data from the data directory.
+5. Make sure the teacher dashboard, pressure page, and mind map page can all render with local data.
+6. Add clear but compact Chinese status text for loading, success, and failure states.
+7. Keep all logic lightweight.
+8. Use simple English comments and variable names.
+
+Expected output
+- A stable demo that still works under partial failure.
+
+
+Module 15
+Time block
+- Day 3, 19:00-21:00
+
+Goal
+- Prepare the final demo flow and remove any mismatch with docs/demo_technical_plan.txt.
+
+Prompt
+Please do a final implementation pass on the AI Classroom Assistant demo.
+
+Requirements:
+1. Compare the code with docs/demo_technical_plan.txt.
+2. Fix any mismatch in routes, APIs, data fields, or UI content.
+3. Confirm that both teacher and student sides are web pages.
+4. Confirm that all visible content is Chinese.
+5. Confirm that the PPT-to-mind-map feature exists and works in the demo.
+6. Confirm that the strategy suggestions match the real-time classroom alert logic.
+7. Confirm that the student ask feature shows source notes and safe wording.
+8. Confirm that the pressure page includes the knowledge simplification pack.
+9. Keep comments and variable names in simple English.
+10. Keep the codebase lightweight and easy for further Codex editing.
+
+Expected output
+- A final demo-ready codebase aligned with the technical plan.

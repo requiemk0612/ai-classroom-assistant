@@ -1,0 +1,108 @@
+﻿Runtime Verification Report
+
+1. Scope
+
+This document records the runtime-level verification completed after dependency installation.
+The verification was checked against docs/demo_technical_plan.txt.
+The focus was the main demo routes, API routes, build status, and key presentation flows.
+
+
+2. Environment Status
+
+- Node.js: v24.14.1
+- npm: 11.11.0
+- Dependency install: completed successfully in the project working directory
+- Type check: passed
+- Production build: passed
+
+
+3. Fixes Made During Verification
+
+- Updated Next.js version in package.json to a React 19 compatible 15.x release
+- Updated next.config.mjs to use the current typedRoutes field location
+- Rewrote project text/code files to UTF-8 without BOM so Next.js could read package.json correctly
+
+
+4. Route Verification
+
+Verified with local dev server:
+
+- / => 200
+- /student/feedback => 200
+- /student/ask => 200
+- /student/mindmap => 200
+- /teacher/dashboard => 200
+- /teacher/pressure => 200
+- /teacher/mindmap => 200
+
+Verified key Chinese page text:
+
+- /student/feedback contains 课堂实时反馈
+- /student/ask contains 学生问答
+- /teacher/dashboard contains 教师仪表盘
+- /teacher/pressure contains 压力感知
+- /teacher/mindmap contains PPT 知识导图
+
+
+5. API Verification
+
+Verified successfully:
+
+- /api/metrics
+- /api/feedback
+- /api/ask
+- /api/strategy
+- /api/pressure
+- /api/mindmap
+
+Observed results:
+
+- Feedback submission updated feedbackCount and confusionRate
+- Ask API returned high confidence with source notes
+- Strategy API returned 3 strategy items
+- Pressure API returned weather level and 3 micro strategy items
+- Mind map API returned courseName, summaryPoints, nodes, edges, and sourceSlides
+
+
+6. Live Flow Verification
+
+Verified:
+
+- Student feedback can update metrics through runtime requests
+- Alert logic can be triggered after enough recent confused feedback is submitted
+- Mind map POST flow works without breaking the page data structure
+- Teacher/student pages can load the latest local JSON backed data through API routes
+
+Partially verified:
+
+- Socket.IO connection path works for basic metrics update
+- Full browser-side visual interaction was not executed through a real browser automation tool in this pass
+
+
+7. Consistency Check With Technical Plan
+
+Aligned with docs/demo_technical_plan.txt:
+
+- Teacher side and student side are web pages
+- User-facing text is Chinese
+- PPT to knowledge points to mind map flow exists in the demo
+- Student ask with source note exists
+- Teacher dashboard with heatmap/trend/alert/strategy exists
+- Teacher pressure page with simplification pack exists
+- Local JSON remains the default data source
+
+
+8. Current Status
+
+The project is now in a healthy state for the next development stage.
+The app can install, type-check, build, start, and respond on the main routes and APIs.
+
+
+9. Recommended Next Step
+
+Follow the original route already planned earlier:
+
+1. continue browser-side runtime debugging and UI polish
+2. strengthen the real-time feedback to dashboard presentation flow
+3. connect DeepSeek for strategy rewrite and grounded answer generation
+4. improve PPT summary quality for the final demo presentation
