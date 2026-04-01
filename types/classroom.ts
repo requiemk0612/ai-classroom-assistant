@@ -31,6 +31,9 @@ export interface DashboardMetrics {
   confusionRate: number;
   feedbackSummary: Record<string, number>;
   trendPoints: Array<{ time: string; value: number }>;
+  currentWindowCount: number;
+  lastWindowRate: number;
+  rateDelta: number;
   alert: AlertInfo | null;
 }
 

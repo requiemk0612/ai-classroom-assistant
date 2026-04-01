@@ -1,0 +1,6 @@
+& "D:\Temp\scratch\ui_shared.ps1"
+& "D:\Temp\scratch\ui_pages.ps1"
+& "D:\Temp\scratch\ui_student_cards.ps1"
+& "D:\Temp\scratch\ui_teacher_clients.ps1"
+& "D:\Temp\scratch\ui_backend_texts.ps1"
+& "D:\Temp\scratch\ui_data_refresh.ps1"

@@ -1,12 +1,27 @@
 import type { AlertInfo, DashboardMetrics, FeedbackType, SessionState } from "@/types/classroom";
 
 const feedbackKeys: FeedbackType[] = ["understand", "too_fast", "confused", "clear_example"];
+const currentWindowMs = 30000;
+const lastWindowMs = 60000;
 
 function buildSummary(log: SessionState["feedbackLog"]) {
   return feedbackKeys.reduce<Record<string, number>>((acc, item) => {
     acc[item] = log.filter((entry) => entry.feedbackType === item).length;
     return acc;
   }, {});
+}
+
+function getCurrentWindow(log: SessionState["feedbackLog"]) {
+  const now = Date.now();
+  return log.filter((item) => now - new Date(item.time).getTime() <= currentWindowMs);
+}
+
+function getLastWindow(log: SessionState["feedbackLog"]) {
+  const now = Date.now();
+  return log.filter((item) => {
+    const diff = now - new Date(item.time).getTime();
+    return diff > currentWindowMs && diff <= lastWindowMs;
+  });
 }
 
 function buildTrend(log: SessionState["feedbackLog"]) {
@@ -26,12 +41,8 @@ function getConfusionRate(log: SessionState["feedbackLog"]): number {
 }
 
 function buildAlert(log: SessionState["feedbackLog"], topicId: string): AlertInfo | null {
-  const now = Date.now();
-  const currentWindow = log.filter((item) => now - new Date(item.time).getTime() <= 30000);
-  const lastWindow = log.filter((item) => {
-    const diff = now - new Date(item.time).getTime();
-    return diff > 30000 && diff <= 60000;
-  });
+  const currentWindow = getCurrentWindow(log);
+  const lastWindow = getLastWindow(log);
   const currentRate = getConfusionRate(currentWindow);
   const lastRate = getConfusionRate(lastWindow);
 
@@ -49,18 +60,22 @@ function buildAlert(log: SessionState["feedbackLog"], topicId: string): AlertInf
 }
 
 export function buildDashboardMetrics(session: SessionState): DashboardMetrics {
+  const currentWindow = getCurrentWindow(session.feedbackLog);
+  const lastWindow = getLastWindow(session.feedbackLog);
   const feedbackCount = session.feedbackLog.length;
-  const confusedCount = session.feedbackLog.filter(
-    (item) => item.feedbackType === "too_fast" || item.feedbackType === "confused"
-  ).length;
-  const confusionRate = feedbackCount === 0 ? 0 : confusedCount / feedbackCount;
+  const confusionRate = getConfusionRate(currentWindow);
+  const lastWindowRate = getConfusionRate(lastWindow);
+  const rateDelta = confusionRate - lastWindowRate;
 
   return {
     onlineCount: session.onlineStudents.length,
     feedbackCount,
     confusionRate,
-    feedbackSummary: buildSummary(session.feedbackLog),
+    feedbackSummary: buildSummary(currentWindow),
     trendPoints: buildTrend(session.feedbackLog),
+    currentWindowCount: currentWindow.length,
+    lastWindowRate,
+    rateDelta,
     alert: buildAlert(session.feedbackLog, session.topicId)
   };
 }

@@ -1,0 +1,156 @@
+$root = "D:\Projects\ai-classroom-assistant"
+$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+
+function Write-Utf8NoBom {
+  param(
+    [string]$Path,
+    [string]$Content
+  )
+
+  [System.IO.File]::WriteAllText($Path, $Content, $utf8NoBom)
+}
+
+Write-Utf8NoBom "$root\app\page.tsx" @'
+import Link from "next/link";
+import { PageShell } from "@/components/shared/page-shell";
+
+const sections = [
+  {
+    title: "ѧ����",
+    items: [
+      { href: "/student/feedback", label: "���÷���", desc: "�����ύ���θ��ܣ�ʵʱ�������ý��ࡣ" },
+      { href: "/student/ask", label: "ѧ���ʴ�", desc: "���ڿγ����Ͻ��а�ȫ�ʴ𣬲�����Դע�ǡ�" },
+      { href: "/student/mindmap", label: "֪ʶ��ͼ", desc: "�鿴��ʦ�������ɵ�֪ʶ��ժҪ�뵼ͼ��" }
+    ]
+  },
+  {
+    title: "��ʦ��",
+    items: [
+      { href: "/teacher/dashboard", label: "��ʦ�Ǳ���", desc: "�鿴�����ʡ��������ơ�Ԥ���Ͳ��Խ��顣" },
+      { href: "/teacher/pressure", label: "ѹ����֪", desc: "�۲�༶ѹ��״̬����һ�ڿε�΢���ԡ�" },
+      { href: "/teacher/mindmap", label: "PPT ��ͼ", desc: "�ϴ� PPT������֪ʶ��ժҪ�͹����ͼ��" }
+    ]
+  }
+];
+
+export default function HomePage() {
+  return (
+    <PageShell
+      title="AI ���ý�ѧ������ʾ"
+      subtitle="ͳһ���ҳ�棺�������л�ѧ�������ʦ����ʾ���̣�չʾ����ʵʱ��֪���ʴ�ѹ�������� PPT ��ͼ������"
+    >
+      <div className="grid gap-6 md:grid-cols-2">
+        {sections.map((section) => (
+          <div key={section.title} className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+            <h2 className="text-xl font-semibold text-slate-900">{section.title}</h2>
+            <div className="mt-4 grid gap-3">
+              {section.items.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 transition hover:border-brand-500 hover:bg-brand-50"
+                >
+                  <div className="text-sm font-semibold text-slate-900">{item.label}</div>
+                  <div className="mt-2 text-sm leading-6 text-slate-600">{item.desc}</div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </PageShell>
+  );
+}
+'@
+
+Write-Utf8NoBom "$root\app\student\feedback\page.tsx" @'
+import { PageShell } from "@/components/shared/page-shell";
+import { StudentFeedbackClient } from "@/components/student/student-feedback-client";
+
+export default function StudentFeedbackPage() {
+  return (
+    <PageShell title="����ʵʱ����" subtitle="ѧ������ҳ������������ǰ����״̬��������ʦ��ʱ����������ࡣ">
+      <StudentFeedbackClient />
+    </PageShell>
+  );
+}
+'@
+
+Write-Utf8NoBom "$root\app\student\ask\page.tsx" @'
+import { PageShell } from "@/components/shared/page-shell";
+import { StudentAskClient } from "@/components/student/student-ask-client";
+
+export default function StudentAskPage() {
+  return (
+    <PageShell title="ѧ���ʴ�" subtitle="ѧ������ҳ�����ڿγ����Ͻ��а�ȫ�ʴ𣬷��ش�����Դע�ǡ�">
+      <StudentAskClient />
+    </PageShell>
+  );
+}
+'@
+
+Write-Utf8NoBom "$root\app\student\mindmap\page.tsx" @'
+import { PageShell } from "@/components/shared/page-shell";
+import { StudentMindMapClient } from "@/components/student/student-mindmap-client";
+import { loadMindMapData } from "@/lib/file-store";
+
+export default async function StudentMindMapPage() {
+  const data = await loadMindMapData();
+
+  return (
+    <PageShell title="֪ʶ��ͼ" subtitle="ѧ������ҳ���鿴��ǰ�γ̵�֪ʶ��ṹ����ʦ�������ɵĵ�ͼ��">
+      <StudentMindMapClient initialData={data} />
+    </PageShell>
+  );
+}
+'@
+
+Write-Utf8NoBom "$root\app\teacher\dashboard\page.tsx" @'
+import { PageShell } from "@/components/shared/page-shell";
+import { TeacherDashboardClient } from "@/components/teacher/teacher-dashboard-client";
+import { buildDashboardMetrics } from "@/lib/threshold";
+import { loadSessionState } from "@/lib/file-store";
+
+export default async function TeacherDashboardPage() {
+  const session = await loadSessionState();
+  const initialMetrics = buildDashboardMetrics(session);
+
+  return (
+    <PageShell title="��ʦ�Ǳ���" subtitle="��ʦ����ҳ��ʵʱ�鿴�������״̬��Ԥ����Ϣ�ͽ�ѧ���Խ��顣">
+      <TeacherDashboardClient initialMetrics={initialMetrics} />
+    </PageShell>
+  );
+}
+'@
+
+Write-Utf8NoBom "$root\app\teacher\pressure\page.tsx" @'
+import { PageShell } from "@/components/shared/page-shell";
+import { TeacherPressureClient } from "@/components/teacher/teacher-pressure-client";
+import { loadPressureData } from "@/lib/file-store";
+
+export default async function TeacherPressurePage() {
+  const data = await loadPressureData();
+
+  return (
+    <PageShell title="ѹ����֪" subtitle="��ʦ����ҳ���鿴�༶ѹ��״̬���������һ�ڿε�΢���Խ��顣">
+      <TeacherPressureClient initialData={data} />
+    </PageShell>
+  );
+}
+'@
+
+Write-Utf8NoBom "$root\app\teacher\mindmap\page.tsx" @'
+import { PageShell } from "@/components/shared/page-shell";
+import { TeacherMindMapClient } from "@/components/teacher/teacher-mindmap-client";
+import { loadMindMapData } from "@/lib/file-store";
+
+export default async function TeacherMindMapPage() {
+  const data = await loadMindMapData();
+
+  return (
+    <PageShell title="PPT ֪ʶ��ͼ" subtitle="��ʦ����ҳ���ϴ� PPT������֪ʶ��ժҪ�����ɹ����ͼ��">
+      <TeacherMindMapClient initialData={data} />
+    </PageShell>
+  );
+}
+'@

@@ -15,6 +15,7 @@ export interface AskResult {
 
 export interface MetricsResponse extends DashboardMetrics {}
 export interface PressureResponse extends PressureData {
+  pressureScore: number;
   weatherLevel: string;
   microStrategies: string[];
 }

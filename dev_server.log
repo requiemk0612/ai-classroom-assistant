@@ -1,0 +1,4 @@
+
+> ai-classroom-assistant@0.1.0 dev
+> tsx watch server/index.ts
+

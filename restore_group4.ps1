@@ -1,0 +1,303 @@
+$files = @{
+  "D:\Projects\ai-classroom-assistant\app\api\feedback\route.ts" = @'
+import { NextResponse } from "next/server";
+import { z } from "zod";
+import { canSendFeedback } from "@/lib/anti-fake";
+import { loadSessionState, saveSessionState } from "@/lib/file-store";
+
+const bodySchema = z.object({
+  sessionId: z.string(),
+  studentId: z.string(),
+  topicId: z.string(),
+  feedbackType: z.enum(["understand", "too_fast", "confused", "clear_example"]),
+  time: z.string()
+});
+
+export async function POST(request: Request) {
+  const body = bodySchema.parse(await request.json());
+  if (!canSendFeedback(body.studentId)) {
+    return NextResponse.json({ ok: false, message: "\u53cd\u9988\u53d1\u9001\u8fc7\u4e8e\u9891\u7e41\uff0c\u8bf7\u7a0d\u540e\u518d\u8bd5\u3002" }, { status: 429 });
+  }
+
+  const session = await loadSessionState();
+  if (!session.onlineStudents.includes(body.studentId)) {
+    session.onlineStudents.push(body.studentId);
+  }
+  session.topicId = body.topicId;
+  session.feedbackLog.push({
+    studentId: body.studentId,
+    feedbackType: body.feedbackType,
+    time: body.time
+  });
+  await saveSessionState(session);
+
+  return NextResponse.json({ ok: true, message: "\u53cd\u9988\u5df2\u8bb0\u5f55\u3002" });
+}
+'@
+  "D:\Projects\ai-classroom-assistant\app\api\ask\route.ts" = @'
+import { NextResponse } from "next/server";
+import { z } from "zod";
+import { buildAskResult } from "@/lib/retrieval";
+
+const bodySchema = z.object({
+  topicId: z.string(),
+  question: z.string(),
+  studentId: z.string()
+});
+
+export async function POST(request: Request) {
+  try {
+    const body = bodySchema.parse(await request.json());
+    const result = await buildAskResult(body.topicId, body.question);
+    return NextResponse.json(result);
+  } catch {
+    return NextResponse.json({
+      answer:
+        "\u5f53\u524d\u95ee\u7b54\u529f\u80fd\u6682\u65f6\u6ca1\u6709\u6210\u529f\u8fd4\u56de\uff0c\u5efa\u8bae\u5148\u56de\u5230\u8bfe\u7a0b\u8d44\u6599\u4e2d\u7684\u5b9a\u4e49\u3001\u56fe\u50cf\u548c\u516c\u5f0f\u90e8\u5206\u3002",
+      confidence: "low",
+      sourceNotes: [],
+      safeNote: "\u5982\u679c\u8fd9\u4e2a\u95ee\u9898\u4ecd\u7136\u5b58\u5728\u7591\u60d1\uff0c\u5efa\u8bae\u7ed3\u5408\u8001\u5e08\u5f53\u5802\u8bb2\u89e3\u518d\u786e\u8ba4\u4e00\u6b21\u3002"
+    });
+  }
+}
+'@
+  "D:\Projects\ai-classroom-assistant\app\api\pressure\route.ts" = @'
+import { NextResponse } from "next/server";
+import { loadPressureData } from "@/lib/file-store";
+import { getWeatherLevel } from "@/lib/confidence";
+
+export async function GET() {
+  const data = await loadPressureData();
+  const pressureScore = (1 - data.homeworkSpeed + (1 - data.accuracyRate)) / 2;
+
+  return NextResponse.json({
+    ...data,
+    weatherLevel: getWeatherLevel(pressureScore),
+    microStrategies: [
+      "\u5efa\u8bae\u5148\u653e\u6162\u68af\u5ea6\u51e0\u4f55\u610f\u4e49\u7684\u63a8\u5bfc\u901f\u5ea6\u3002",
+      "\u5efa\u8bae\u8865\u4e00\u5f20\u7b49\u9ad8\u7ebf\u56fe\u5e2e\u52a9\u5b66\u751f\u7406\u89e3\u65b9\u5411\u5173\u7cfb\u3002",
+      "\u5efa\u8bae\u8bfe\u540e\u53d1\u4e00\u4e2a\u4e24\u9898\u5fae\u7ec3\u4e60\u5de9\u56fa\u65b9\u5411\u5bfc\u6570\u516c\u5f0f\u3002"
+    ]
+  });
+}
+'@
+  "D:\Projects\ai-classroom-assistant\app\api\strategy\route.ts" = @'
+import { NextResponse } from "next/server";
+import { z } from "zod";
+import { buildStrategyResponse } from "@/lib/strategy-engine";
+
+const bodySchema = z.object({
+  topicId: z.string(),
+  confusionRate: z.number().default(0)
+});
+
+export async function POST(request: Request) {
+  const body = bodySchema.parse(await request.json());
+  const result = await buildStrategyResponse(body.topicId, body.confusionRate);
+  return NextResponse.json(result);
+}
+'@
+  "D:\Projects\ai-classroom-assistant\lib\confidence.ts" = @'
+export function getWeatherLevel(score: number): string {
+  if (score >= 0.7) return "\u96f7\u66b4";
+  if (score >= 0.45) return "\u591a\u4e91";
+  return "\u6674\u5929";
+}
+'@
+  "D:\Projects\ai-classroom-assistant\data\strategy-library.json" = @'
+{
+  "topics": [
+    {
+      "topicId": "multivar_total_derivative",
+      "topicName": "\u5168\u5fae\u5206",
+      "analogy": [
+        "\u53ef\u4ee5\u628a\u5168\u5fae\u5206\u7406\u89e3\u4e3a\u5728\u5f53\u524d\u5f88\u5c0f\u7684\u53d8\u5316\u8303\u56f4\u5185\uff0c\u7528\u4e00\u4e2a\u7ebf\u6027\u8fd1\u4f3c\u6765\u63cf\u8ff0\u51fd\u6570\u603b\u4f53\u53d8\u5316\u3002",
+        "\u4e5f\u53ef\u4ee5\u628a\u5b83\u60f3\u6210\u5728\u5c71\u5761\u4e0a\u5f80\u524d\u632a\u52a8\u4e00\u5c0f\u6b65\u65f6\uff0c\u9ad8\u5ea6\u5927\u81f4\u4f1a\u53d8\u591a\u5c11\u3002"
+      ],
+      "visual": [
+        "\u7ed3\u5408\u66f2\u9762\u4e0e\u5207\u5e73\u9762\u793a\u610f\u56fe\uff0c\u8bf4\u660e\u5c40\u90e8\u7ebf\u6027\u8fd1\u4f3c\u7684\u610f\u601d\u3002",
+        "\u7528\u4e0d\u540c\u989c\u8272\u533a\u5206 dx \u548c dy \u5bf9 dz \u7684\u8d21\u732e\u3002"
+      ],
+      "quickCheck": [
+        "\u8ba9\u5b66\u751f\u89e3\u91ca dz = fx dx + fy dy \u91cc\u6bcf\u4e00\u9879\u7684\u7269\u7406\u6216\u51e0\u4f55\u610f\u4e49\u3002",
+        "\u7528\u4e00\u9053\u5c0f\u9898\u533a\u5206\u5168\u589e\u91cf\u4e0e\u5168\u5fae\u5206\u7684\u5173\u7cfb\u3002"
+      ],
+      "keyPoints": [
+        "\u5168\u5fae\u5206\u662f\u51fd\u6570\u5728\u5c40\u90e8\u7684\u7ebf\u6027\u4e3b\u90e8\u5206\u3002",
+        "\u4e8c\u5143\u51fd\u6570\u53ef\u5fae\u65f6\u53ef\u5199\u6210 dz = fx dx + fy dy\u3002",
+        "\u5168\u5fae\u5206\u5e38\u7528\u4e8e\u8fd1\u4f3c\u8ba1\u7b97\u548c\u8bef\u5dee\u4f30\u8ba1\u3002"
+      ]
+    },
+    {
+      "topicId": "directional_derivative",
+      "topicName": "\u65b9\u5411\u5bfc\u6570",
+      "analogy": [
+        "\u53ef\u4ee5\u628a\u65b9\u5411\u5bfc\u6570\u7406\u89e3\u6210\u7ad9\u5728\u5c71\u5761\u4e0a\uff0c\u6cbf\u7740\u67d0\u4e2a\u6307\u5b9a\u65b9\u5411\u8d70\u65f6\u9ad8\u5ea6\u53d8\u5316\u7684\u5feb\u6162\u3002",
+        "\u5b83\u4e0e\u504f\u5bfc\u6570\u7684\u533a\u522b\u662f\uff0c\u504f\u5bfc\u6570\u53ea\u770b\u5750\u6807\u8f74\u65b9\u5411\uff0c\u800c\u65b9\u5411\u5bfc\u6570\u53ef\u4ee5\u770b\u4efb\u610f\u65b9\u5411\u3002"
+      ],
+      "visual": [
+        "\u5728\u7b49\u9ad8\u7ebf\u56fe\u4e0a\u753b\u51fa\u4e0d\u540c\u65b9\u5411\u7684\u7bad\u5934\uff0c\u6bd4\u8f83\u6cbf\u4e0d\u540c\u65b9\u5411\u7684\u589e\u51cf\u901f\u5ea6\u3002",
+        "\u5f3a\u8c03\u516c\u5f0f\u4e2d\u7684\u5355\u4f4d\u5411\u91cf\uff0c\u8ba9\u5b66\u751f\u7406\u89e3\u65b9\u5411\u4fe1\u606f\u662f\u600e\u4e48\u8fdb\u5165\u8ba1\u7b97\u7684\u3002"
+      ],
+      "quickCheck": [
+        "\u95ee\u5b66\u751f\u4e3a\u4ec0\u4e48\u516c\u5f0f\u91cc\u8981\u4f7f\u7528\u5355\u4f4d\u5411\u91cf\u3002",
+        "\u8ba9\u5b66\u751f\u5224\u65ad\u67d0\u4e2a\u65b9\u5411\u5bfc\u6570\u662f\u6b63\u8fd8\u662f\u8d1f\uff0c\u5e2e\u52a9\u4ed6\u4eec\u8fde\u63a5\u56fe\u50cf\u610f\u4e49\u3002"
+      ],
+      "keyPoints": [
+        "\u65b9\u5411\u5bfc\u6570\u8868\u793a\u51fd\u6570\u5728\u67d0\u4e2a\u6307\u5b9a\u65b9\u5411\u4e0a\u7684\u53d8\u5316\u7387\u3002",
+        "\u8ba1\u7b97\u65f6\u9700\u8981\u4f7f\u7528\u5355\u4f4d\u5411\u91cf\u3002",
+        "\u65b9\u5411\u5bfc\u6570\u53ef\u4ee5\u7531\u68af\u5ea6\u4e0e\u65b9\u5411\u5411\u91cf\u7684\u70b9\u79ef\u7ed9\u51fa\u3002"
+      ]
+    },
+    {
+      "topicId": "gradient",
+      "topicName": "\u68af\u5ea6",
+      "analogy": [
+        "\u53ef\u4ee5\u628a\u68af\u5ea6\u60f3\u6210\u5c71\u5761\u4e0a\u4e0a\u5347\u6700\u5feb\u7684\u90a3\u4e2a\u65b9\u5411\uff0c\u800c\u68af\u5ea6\u7684\u957f\u5ea6\u5c31\u8868\u793a\u4e0a\u5347\u6709\u591a\u5feb\u3002",
+        "\u4e5f\u53ef\u4ee5\u628a\u5b83\u4e0e\u5bfc\u822a\u7bad\u5934\u7c7b\u6bd4\uff0c\u7bad\u5934\u6307\u5411\u503c\u589e\u957f\u6700\u5feb\u7684\u65b9\u5411\u3002"
+      ],
+      "visual": [
+        "\u5728\u7b49\u9ad8\u7ebf\u56fe\u4e0a\u753b\u51fa\u68af\u5ea6\u7bad\u5934\uff0c\u5f3a\u8c03\u5b83\u4e0e\u7b49\u9ad8\u7ebf\u5782\u76f4\u3002",
+        "\u5bf9\u6bd4\u4e0d\u540c\u4f4d\u7f6e\u7684\u68af\u5ea6\u957f\u5ea6\uff0c\u8bf4\u660e\u54ea\u91cc\u589e\u957f\u66f4\u5feb\u3002"
+      ],
+      "quickCheck": [
+        "\u8ba9\u5b66\u751f\u7528\u4e00\u53e5\u8bdd\u8bf4\u51fa\u68af\u5ea6\u65b9\u5411\u4e0e\u68af\u5ea6\u6a21\u7684\u610f\u4e49\u3002",
+        "\u95ee\u5b66\u751f\u4e3a\u4ec0\u4e48\u68af\u5ea6\u4e0e\u7b49\u9ad8\u7ebf\u5782\u76f4\u3002"
+      ],
+      "keyPoints": [
+        "\u68af\u5ea6\u7531\u5404\u4e2a\u504f\u5bfc\u6570\u7ec4\u6210\u5411\u91cf\u3002",
+        "\u68af\u5ea6\u65b9\u5411\u662f\u51fd\u6570\u589e\u957f\u6700\u5feb\u7684\u65b9\u5411\u3002",
+        "\u68af\u5ea6\u7684\u6a21\u8868\u793a\u6700\u5927\u65b9\u5411\u5bfc\u6570\u3002",
+        "\u68af\u5ea6\u4e0e\u7b49\u9ad8\u7ebf\u6216\u7b49\u503c\u9762\u6b63\u4ea4\u3002"
+      ]
+    },
+    {
+      "topicId": "tangent_plane",
+      "topicName": "\u5207\u5e73\u9762\u65b9\u7a0b",
+      "analogy": [
+        "\u5207\u5e73\u9762\u53ef\u4ee5\u7406\u89e3\u4e3a\u66f2\u9762\u5728\u67d0\u4e00\u70b9\u9644\u8fd1\u6700\u8d34\u8fd1\u5b83\u7684\u5e73\u9762\u3002",
+        "\u5c31\u50cf\u7528\u4e00\u5f20\u8584\u8584\u7684\u786c\u7eb8\u7247\u8f7b\u8f7b\u8d34\u5728\u66f2\u9762\u4e0a\uff0c\u90a3\u5f20\u7eb8\u7247\u6240\u5728\u7684\u5e73\u9762\u5c31\u662f\u5207\u5e73\u9762\u3002"
+      ],
+      "visual": [
+        "\u5c55\u793a\u66f2\u9762\u3001\u5207\u70b9\u548c\u5207\u5e73\u9762\u7684\u7acb\u4f53\u793a\u610f\u56fe\u3002",
+        "\u7ed3\u5408\u4e24\u4e2a\u504f\u5bfc\u6570\u8bf4\u660e\u5e73\u9762\u6cbf x \u548c y \u65b9\u5411\u7684\u659c\u7387\u5982\u4f55\u786e\u5b9a\u3002"
+      ],
+      "quickCheck": [
+        "\u8ba9\u5b66\u751f\u8bf4\u51fa\u5207\u5e73\u9762\u65b9\u7a0b\u91cc\u6bcf\u4e00\u9879\u7684\u51e0\u4f55\u610f\u4e49\u3002",
+        "\u7528\u4e00\u4e2a\u5df2\u77e5\u51fd\u6570\u70b9\u7684\u7b80\u5355\u4f8b\u5b50\uff0c\u5feb\u901f\u5224\u65ad\u5b66\u751f\u662f\u5426\u4f1a\u5199\u51fa\u516c\u5f0f\u3002"
+      ],
+      "keyPoints": [
+        "\u5207\u5e73\u9762\u63cf\u8ff0\u66f2\u9762\u5728\u67d0\u70b9\u9644\u8fd1\u7684\u5c40\u90e8\u7ebf\u6027\u8fd1\u4f3c\u3002",
+        "\u5229\u7528\u504f\u5bfc\u6570\u53ef\u4ee5\u5199\u51fa\u5207\u5e73\u9762\u65b9\u7a0b\u3002",
+        "\u5b83\u4e0e\u68af\u5ea6\u3001\u5168\u5fae\u5206\u5177\u6709\u7d27\u5bc6\u8054\u7cfb\u3002"
+      ]
+    }
+  ]
+}
+'@
+  "D:\Projects\ai-classroom-assistant\data\course-materials.json" = @'
+{
+  "chunks": [
+    {
+      "chunkId": "chunk_001",
+      "topicId": "multivar_total_derivative",
+      "title": "\u5168\u5fae\u5206\u7684\u5b9a\u4e49",
+      "content": "\u5bf9\u4e8e\u4e8c\u5143\u51fd\u6570 z = f(x, y)\uff0c\u5982\u679c\u5728\u67d0\u70b9\u9644\u8fd1\u53ef\u5fae\uff0c\u5219\u5168\u5fae\u5206\u53ef\u5199\u6210 dz = fx dx + fy dy\u3002\u5b83\u63cf\u8ff0\u4e86\u81ea\u53d8\u91cf\u53d1\u751f\u5f88\u5c0f\u53d8\u5316\u65f6\u51fd\u6570\u503c\u7684\u4e3b\u8981\u53d8\u5316\u90e8\u5206\u3002",
+      "sourceName": "\u9ad8\u7b49\u6570\u5b66\u8bfe\u5802\u8bb2\u4e49 \u7b2c\u516d\u7ae0 \u591a\u5143\u51fd\u6570\u5fae\u5206",
+      "page": "P12",
+      "keywords": ["\u5168\u5fae\u5206", "\u5168\u589e\u91cf", "dz", "\u53ef\u5fae"]
+    },
+    {
+      "chunkId": "chunk_002",
+      "topicId": "multivar_total_derivative",
+      "title": "\u5168\u5fae\u5206\u7684\u51e0\u4f55\u610f\u4e49",
+      "content": "\u5168\u5fae\u5206\u53cd\u6620\u7684\u662f\u51fd\u6570\u5728\u4e00\u70b9\u9644\u8fd1\u7684\u5c40\u90e8\u7ebf\u6027\u53d8\u5316\u89c4\u5f8b\u3002\u5bf9 z = f(x, y) \u6765\u8bf4\uff0c\u53ef\u4ee5\u7406\u89e3\u4e3a\u5207\u5e73\u9762\u5bf9\u66f2\u9762\u7684\u6700\u4f73\u7ebf\u6027\u8fd1\u4f3c\u3002",
+      "sourceName": "\u9ad8\u7b49\u6570\u5b66\u8bfe\u5802\u8bb2\u4e49 \u7b2c\u516d\u7ae0 \u591a\u5143\u51fd\u6570\u5fae\u5206",
+      "page": "P13",
+      "keywords": ["\u5168\u5fae\u5206", "\u5207\u5e73\u9762", "\u5c40\u90e8\u8fd1\u4f3c"]
+    },
+    {
+      "chunkId": "chunk_003",
+      "topicId": "directional_derivative",
+      "title": "\u65b9\u5411\u5bfc\u6570\u7684\u5b9a\u4e49",
+      "content": "\u65b9\u5411\u5bfc\u6570\u8868\u793a\u51fd\u6570\u5728\u67d0\u4e00\u4e2a\u6307\u5b9a\u65b9\u5411\u4e0a\u7684\u53d8\u5316\u7387\u3002\u5b83\u5e2e\u52a9\u6211\u4eec\u5224\u65ad\u6cbf\u4e0d\u540c\u65b9\u5411\u79fb\u52a8\u65f6\uff0c\u51fd\u6570\u503c\u53d8\u5316\u7684\u5feb\u6162\u548c\u6b63\u8d1f\u3002",
+      "sourceName": "\u9ad8\u7b49\u6570\u5b66\u8bfe\u5802\u8bb2\u4e49 \u7b2c\u516d\u7ae0 \u591a\u5143\u51fd\u6570\u5fae\u5206",
+      "page": "P18",
+      "keywords": ["\u65b9\u5411\u5bfc\u6570", "\u5355\u4f4d\u5411\u91cf", "\u53d8\u5316\u7387"]
+    },
+    {
+      "chunkId": "chunk_004",
+      "topicId": "directional_derivative",
+      "title": "\u65b9\u5411\u5bfc\u6570\u4e0e\u68af\u5ea6\u7684\u5173\u7cfb",
+      "content": "\u82e5\u51fd\u6570\u53ef\u5fae\uff0c\u5219\u6cbf\u5355\u4f4d\u5411\u91cf u \u7684\u65b9\u5411\u5bfc\u6570\u7b49\u4e8e grad f \u4e0e u \u7684\u70b9\u79ef\u3002\u56e0\u6b64\uff0c\u68af\u5ea6\u51b3\u5b9a\u4e86\u5404\u4e2a\u65b9\u5411\u4e0a\u7684\u53d8\u5316\u60c5\u51b5\u3002",
+      "sourceName": "\u9ad8\u7b49\u6570\u5b66\u8bfe\u5802\u8bb2\u4e49 \u7b2c\u516d\u7ae0 \u591a\u5143\u51fd\u6570\u5fae\u5206",
+      "page": "P19",
+      "keywords": ["\u65b9\u5411\u5bfc\u6570", "\u68af\u5ea6", "grad", "\u70b9\u79ef"]
+    },
+    {
+      "chunkId": "chunk_005",
+      "topicId": "gradient",
+      "title": "\u68af\u5ea6\u7684\u5b9a\u4e49",
+      "content": "\u68af\u5ea6\u662f\u7531\u5404\u4e2a\u504f\u5bfc\u6570\u7ec4\u6210\u7684\u5411\u91cf\u3002\u5b83\u6307\u5411\u51fd\u6570\u503c\u589e\u957f\u6700\u5feb\u7684\u65b9\u5411\uff0c\u662f\u7406\u89e3\u591a\u5143\u51fd\u6570\u7a7a\u95f4\u53d8\u5316\u7684\u91cd\u8981\u5de5\u5177\u3002",
+      "sourceName": "\u9ad8\u7b49\u6570\u5b66\u8bfe\u5802\u8bb2\u4e49 \u7b2c\u516d\u7ae0 \u591a\u5143\u51fd\u6570\u5fae\u5206",
+      "page": "P20",
+      "keywords": ["\u68af\u5ea6", "\u504f\u5bfc\u6570", "grad", "\u65b9\u5411"]
+    },
+    {
+      "chunkId": "chunk_006",
+      "topicId": "gradient",
+      "title": "\u68af\u5ea6\u7684\u51e0\u4f55\u610f\u4e49",
+      "content": "\u5728\u7b49\u9ad8\u7ebf\u56fe\u4e0a\uff0c\u68af\u5ea6\u4e0e\u7b49\u9ad8\u7ebf\u5782\u76f4\u3002\u68af\u5ea6\u7684\u6a21\u7b49\u4e8e\u6700\u5927\u65b9\u5411\u5bfc\u6570\uff0c\u56e0\u800c\u53ef\u4ee5\u7528\u5b83\u5224\u65ad\u54ea\u4e2a\u65b9\u5411\u589e\u957f\u6700\u5feb\u3002",
+      "sourceName": "\u9ad8\u7b49\u6570\u5b66\u8bfe\u5802\u8bb2\u4e49 \u7b2c\u516d\u7ae0 \u591a\u5143\u51fd\u6570\u5fae\u5206",
+      "page": "P21",
+      "keywords": ["\u68af\u5ea6", "\u6700\u5927\u65b9\u5411\u5bfc\u6570", "\u7b49\u9ad8\u7ebf", "\u5782\u76f4"]
+    },
+    {
+      "chunkId": "chunk_007",
+      "topicId": "tangent_plane",
+      "title": "\u5207\u5e73\u9762\u65b9\u7a0b",
+      "content": "\u5bf9\u4e8e z = f(x, y)\uff0c\u82e5\u51fd\u6570\u5728\u67d0\u70b9\u53ef\u5fae\uff0c\u5219\u5207\u5e73\u9762\u65b9\u7a0b\u53ef\u5199\u6210 z - z0 = fx(x0, y0)(x - x0) + fy(x0, y0)(y - y0)\u3002",
+      "sourceName": "\u9ad8\u7b49\u6570\u5b66\u8bfe\u5802\u8bb2\u4e49 \u7b2c\u516d\u7ae0 \u591a\u5143\u51fd\u6570\u5fae\u5206",
+      "page": "P15",
+      "keywords": ["\u5207\u5e73\u9762", "\u53ef\u5fae", "\u504f\u5bfc\u6570", "\u65b9\u7a0b"]
+    },
+    {
+      "chunkId": "chunk_008",
+      "topicId": "gradient",
+      "title": "\u68af\u5ea6\u4e0e\u6700\u5927\u53d8\u5316\u7387",
+      "content": "\u5bf9\u6240\u6709\u5355\u4f4d\u65b9\u5411\u5411\u91cf\u800c\u8a00\uff0c\u68af\u5ea6\u65b9\u5411\u7ed9\u51fa\u7684\u65b9\u5411\u5bfc\u6570\u53d6\u5230\u6700\u5927\u503c\u3002\u8fd9\u8bf4\u660e\u68af\u5ea6\u65e2\u51b3\u5b9a\u65b9\u5411\uff0c\u4e5f\u51b3\u5b9a\u6700\u5927\u589e\u957f\u901f\u7387\u3002",
+      "sourceName": "\u9ad8\u7b49\u6570\u5b66\u8bfe\u5802\u8bb2\u4e49 \u7b2c\u516d\u7ae0 \u591a\u5143\u51fd\u6570\u5fae\u5206",
+      "page": "P22",
+      "keywords": ["\u6700\u5927\u53d8\u5316\u7387", "\u68af\u5ea6", "\u65b9\u5411\u5bfc\u6570", "\u5355\u4f4d\u5411\u91cf"]
+    }
+  ]
+}
+'@
+  "D:\Projects\ai-classroom-assistant\data\pressure-data.json" = @'
+{
+  "sessionId": "demo_session_001",
+  "homeworkSpeed": 0.58,
+  "accuracyRate": 0.71,
+  "moodWords": ["\u7b97\u5f97\u6709\u70b9\u6162", "\u516c\u5f0f\u504f\u591a", "\u56fe\u50cf\u4e0d\u592a\u76f4\u89c2", "\u9700\u8981\u4f8b\u5b50", "\u601d\u8def\u8fd8\u6ca1\u8fde\u8d77\u6765"],
+  "weeklyTrend": [0.34, 0.39, 0.48, 0.55, 0.62],
+  "simplificationPack": {
+    "title": "\u77e5\u8bc6\u7b80\u5316\u5305\uff1a\u5148\u6293\u4f4f\u68af\u5ea6",
+    "summary": "\u53ef\u4ee5\u5148\u628a\u672c\u5468\u5185\u5bb9\u538b\u7f29\u6210\u201c\u68af\u5ea6\u8868\u793a\u503c\u589e\u957f\u6700\u5feb\u7684\u65b9\u5411\u548c\u901f\u5ea6\u201d\uff0c\u518d\u8fde\u56de\u65b9\u5411\u5bfc\u6570\u3001\u7b49\u9ad8\u7ebf\u4e0e\u516c\u5f0f\u8ba1\u7b97\u3002",
+    "actions": [
+      "\u5148\u590d\u4e60\u504f\u5bfc\u6570\u7684\u5b9a\u4e49\uff0c\u786e\u4fdd\u5b66\u751f\u77e5\u9053\u6bcf\u4e2a\u5206\u91cf\u4ece\u54ea\u91cc\u6765\u3002",
+      "\u7528\u5355\u4f4d\u5411\u91cf\u4e0e\u65b9\u5411\u5bfc\u6570\u516c\u5f0f\u505a\u4e00\u6b21\u8fde\u7ebf\u7ec3\u4e60\u3002",
+      "\u901a\u8fc7\u7b49\u9ad8\u7ebf\u56fe\u5e2e\u52a9\u5b66\u751f\u7406\u89e3\u5782\u76f4\u5173\u7cfb\u3002"
+    ]
+  }
+}
+'@
+}
+
+foreach ($path in $files.Keys) {
+  $dir = Split-Path -Parent $path
+  if (-not (Test-Path $dir)) {
+    New-Item -ItemType Directory -Path $dir -Force | Out-Null
+  }
+
+  [System.IO.File]::WriteAllText($path, $files[$path], [System.Text.UTF8Encoding]::new($false))
+}

@@ -2,6 +2,11 @@ import type { StrategyItem, StrategyResponse, StrategyTopic } from "@/types/stra
 import { runDeepSeekChat } from "@/lib/deepseek";
 import { loadStrategyLibrary } from "@/lib/file-store";
 
+interface StrategyContext {
+  trendUp?: boolean;
+  feedbackSummary?: Record<string, number>;
+}
+
 function buildItems(topic: StrategyTopic): StrategyItem[] {
   return [
     {
@@ -22,12 +27,26 @@ function buildItems(topic: StrategyTopic): StrategyItem[] {
   ];
 }
 
-export async function buildStrategyResponse(topicId: string, confusionRate: number): Promise<StrategyResponse> {
+function buildAlertMessage(topicName: string, confusionRate: number, context?: StrategyContext) {
+  const summary = context?.feedbackSummary ?? {};
+  const confusedCount = (summary.confused ?? 0) + (summary.too_fast ?? 0);
+  const trendText = context?.trendUp ? "\u4e14\u6700\u8fd1\u56f0\u60d1\u8d8b\u52bf\u4ecd\u5728\u4e0a\u5347" : "\u4f46\u8fd8\u53ef\u4ee5\u901a\u8fc7\u4f8b\u5b50\u548c\u5feb\u901f\u68c0\u67e5\u62c9\u56de";
+
+  return `\u5f53\u524d\u4e3b\u9898\u201c${topicName}\u201d\u7684\u56f0\u60d1\u53cd\u9988\u7ea6\u4e3a ${Math.round(
+    confusionRate * 100
+  )}%\uff0c\u8fd1\u671f\u56f0\u60d1/\u8282\u594f\u504f\u5feb\u53cd\u9988\u7d2f\u8ba1 ${confusedCount} \u6b21\uff0c${trendText}\u3002`;
+}
+
+export async function buildStrategyResponse(
+  topicId: string,
+  confusionRate: number,
+  context?: StrategyContext
+): Promise<StrategyResponse> {
   const library = await loadStrategyLibrary();
   const topic = library.topics.find((item) => item.topicId === topicId) ?? library.topics[0];
   const localResponse: StrategyResponse = {
     alertLevel: confusionRate > 0.5 ? "high" : "medium",
-    alertMessage: `\u5f53\u524d\u4e3b\u9898\u201c${topic.topicName}\u201d\u7684\u56f0\u60d1\u53cd\u9988\u6b63\u5728\u4e0a\u5347\uff0c\u5efa\u8bae\u8001\u5e08\u5148\u7a33\u4f4f\u8282\u594f\uff0c\u518d\u8865\u4e00\u4e2a\u76f4\u89c2\u89e3\u91ca\u548c\u5feb\u901f\u68c0\u6d4b\u3002`,
+    alertMessage: buildAlertMessage(topic.topicName, confusionRate, context),
     strategies: buildItems(topic)
   };
 
@@ -36,13 +55,15 @@ export async function buildStrategyResponse(topicId: string, confusionRate: numb
       {
         role: "system",
         content:
-          "\u4f60\u662f\u8bfe\u5802\u6559\u5b66\u7b56\u7565\u52a9\u624b\u3002\u8bf7\u6839\u636e\u7ed9\u5b9a\u7684\u8bfe\u5802\u4e3b\u9898\u548c\u56f0\u60d1\u7387\uff0c\u8fd4\u56de JSON\uff0c\u5b57\u6bb5\u4e3a alertMessage \u548c strategies\u3002strategies \u957f\u5ea6\u56fa\u5b9a\u4e3a 3\uff0c\u6bcf\u4e2a\u5143\u7d20\u5305\u542b title \u548c text\uff0c\u5168\u90e8\u4f7f\u7528\u4e2d\u6587\uff0c\u8bed\u6c14\u81ea\u7136\uff0c\u4e0d\u8981\u8131\u79bb\u63d0\u4f9b\u7684\u672c\u5730\u7b56\u7565\u3002"
+          "\u4f60\u662f\u8bfe\u5802\u6559\u5b66\u7b56\u7565\u52a9\u624b\u3002\u8bf7\u6839\u636e\u7ed9\u5b9a\u7684\u8bfe\u5802\u4e3b\u9898\u3001\u56f0\u60d1\u7387\u548c\u672c\u5730\u7b56\u7565\uff0c\u8fd4\u56de JSON\uff0c\u5b57\u6bb5\u4e3a alertMessage \u548c strategies\u3002strategies \u957f\u5ea6\u56fa\u5b9a\u4e3a 3\uff0c\u6bcf\u4e2a\u5143\u7d20\u5305\u542b title \u548c text\uff0c\u5168\u90e8\u4f7f\u7528\u4e2d\u6587\uff0c\u4e0d\u8981\u8131\u79bb\u672c\u5730\u7b56\u7565\u4e2d\u7684\u4e8b\u5b9e\u57fa\u7840\u3002"
       },
       {
         role: "user",
         content: JSON.stringify({
           topicName: topic.topicName,
           confusionRate,
+          trendUp: context?.trendUp ?? false,
+          feedbackSummary: context?.feedbackSummary ?? {},
           keyPoints: topic.keyPoints,
           strategies: localResponse.strategies
         })

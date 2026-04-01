@@ -2,12 +2,19 @@ import { NextResponse } from "next/server";
 import { loadPressureData } from "@/lib/file-store";
 import { getWeatherLevel } from "@/lib/confidence";
 
-export async function GET() {
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const sessionId = searchParams.get("sessionId");
   const data = await loadPressureData();
   const pressureScore = (1 - data.homeworkSpeed + (1 - data.accuracyRate)) / 2;
 
+  if (sessionId && sessionId !== data.sessionId) {
+    return NextResponse.json({ message: "\u672a\u627e\u5230\u5bf9\u5e94\u7684\u538b\u529b\u4f1a\u8bdd\u3002" }, { status: 404 });
+  }
+
   return NextResponse.json({
     ...data,
+    pressureScore,
     weatherLevel: getWeatherLevel(pressureScore),
     microStrategies: [
       "\u5efa\u8bae\u5148\u653e\u6162\u68af\u5ea6\u51e0\u4f55\u610f\u4e49\u7684\u63a8\u5bfc\u901f\u5ea6\u3002",

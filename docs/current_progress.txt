@@ -1,9 +1,9 @@
 ﻿Current Progress
 
 Status
-- Phase: Baseline consistency re-check completed
-- Last completed stable milestone: runtime verification passed and baseline consistency report written
-- Current status: mostly aligned with docs/demo_technical_plan.txt, but a few API contract and lightweight feature gaps remain
+- Phase: Browser-side integration and UI polish in progress
+- Last completed stable milestone: feedback to dashboard to alert to strategy chain tightened and re-checked
+- Current status: main browser flow is closer to docs/demo_technical_plan.txt, with current-window dashboard logic and clearer teacher-side linkage
 - Source of truth: docs/demo_technical_plan.txt
 
 Consistency Check Baseline
@@ -23,23 +23,22 @@ Current Findings
 - Remaining drift is mainly in documented API fields and a few lightweight UI details
 
 Open Gaps
-1. /api/strategy request body is lighter than the technical plan
-2. /api/metrics does not yet use sessionId query
-3. /api/pressure does not yet use sessionId query
-4. /api/mindmap GET does not yet use topicId query
-5. Anti-fake logic is only partially implemented
-6. Student feedback page still needs a more explicit mood bar style block
+1. Full browser verification of the student feedback to dashboard to alert to strategy chain is still needed with multi-click live interaction
+2. DeepSeek-backed strategy rewrite still needs live verification when API key is available
+3. DeepSeek-backed grounded answer generation still needs live verification when API key is available
+4. PPT upload and generated summary quality still need a full browser-side verification pass
+5. Final docs update should be done after the next runtime milestone
 
 Planned Order
-1. Align API contracts with the technical plan
-2. Finish anti-fake and mood bar details
-3. Continue browser-side integration and UI polish
-4. Strengthen student feedback to teacher dashboard to alert to strategy flow
-5. Verify DeepSeek-backed strategy rewrite and grounded answer generation
-6. Improve PPT summary and mind map generation quality
-7. Run verification and update docs
+1. Continue browser-side integration and UI polish
+2. Verify the live student feedback to teacher dashboard to alert to strategy chain in browser
+3. Verify DeepSeek-backed strategy rewrite and grounded answer generation
+4. Improve PPT summary and mind map generation quality
+5. Run verification and update docs
 
 Live Notes
 - Baseline consistency report is in docs/baseline_consistency_check.txt
 - Context handoff is in docs/context_handoff.txt
 - Next code changes must be checked against docs/demo_technical_plan.txt before finalizing
+- Dashboard confusion rate and feedback distribution are now aligned to the recent 30 second classroom window, closer to the dynamic threshold rule in the technical plan
+- Teacher dashboard now shows clearer threshold and strategy linkage blocks for live demo explanation
